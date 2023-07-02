@@ -1,1 +1,2079 @@
-A text based Horror RPG made in Java
+//A text based Horror RPG made in Java
+
+import java.io.*;
+
+import java.util.Scanner;
+
+public class GameLogic {
+    static Scanner sc = new Scanner(System.in);
+    public static boolean isRunning;
+    public static String name;
+    public static int battery = 20;
+    public static int input;
+    public static boolean scene, win;
+    public static boolean deadbat, hanako, dobbi, cclown, ccorny, debil, jigg, knife, sock, joke, knowledge, napkin, napkinw, key = false;
+    public static final String ANSI_RESET = "\u001B[0m", ANSI_RED = "\u001B[31m", ANSI_Black = "\u001B[30m", ANSI_Purple = "\u001B[35m", ANSI_Green = "\u001B[32m";
+
+    //method to get user input 
+    public static int readInt(String prompt, int userChoices){
+        int input;
+
+        do { 
+            System.out.print(prompt);
+            try { 
+                input = Integer.parseInt(sc.next());
+                    if (input < 1 || input > userChoices) {
+                        System.out.println("Enter a value between 1 and " + userChoices);
+                    }
+            } catch (Exception e){
+                input = -1;
+                System.out.println("Enter an integer.");
+            }
+		}
+			while (input < 1 || input > userChoices);
+			return input;
+	}
+ 
+         
+    //method to simulate clearing out the console
+    public static void clearConsole(){
+        for(int i = 0; i < 100; i++){
+            System.out.println("");
+        }
+        }
+    
+    //method to print a separator with length n
+    public static void printSeperator(int n){
+        for (int i = 0; i < n; i++){
+            System.out.print(ANSI_RED + "~" +ANSI_RESET);
+        }
+    }
+    //method to print a heading
+    public static void printHeading(String title){
+        printSeperator(30);
+		System.out.println();
+        System.out.println(title);
+        printSeperator(30);
+    }
+    //method to stop the game until user enters something
+    public static void enterToContinue(){
+        System.out.println("\nPress Enter to continue.");
+        try
+        {
+            System.in.read();
+            sc.nextLine();
+        }  
+        catch(Exception e)
+        {}           
+    }
+    
+    //Method to start the game
+    public  static void startGame(){
+        boolean nameSet = false;
+        String name;
+        //Printing the title Screen
+        do{
+            clearConsole();
+            printSeperator(40);
+            printSeperator(30);
+            System.out.println(ANSI_RED + 
+                                "\n                   ⠀⠀⠀⠀⢀⣀⣠⣤⢤⣤⣤⣄⡀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                ");
+            System.out.println("                     ⣰⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣀⣀⣀⢀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀             ");
+            System.out.println("                ⠀⠀⠰⣻⣿⣿⣿⡿⠛⠋⠙⠛⠛⠛⠿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣴⣾⣿⣷⣿⣿⣿⣽⣷⣿⣿⣬⣿⣿⣛⠂⠀⠀⠀           ");
+            System.out.println("                ⠀⣠⣾⣿⣿⣿⠋⣠⣶⣶⣶⣦⣤⣤⣀⠀⠙⢿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀          ");
+            System.out.println("                ⣠⣿⣿⣿⣿⢃⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠈⠻⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⠟⠋⠁⠀⠀⠀⠀⠈⠙⠛⠿⣿⣿⣿⣿⣄⠀          ");
+            System.out.println("                ⣿⣻⣿⣿⡇⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀⠘⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⠟⠁⠀⠀⠀⣠⣤⣤⣄⣀⣀⠀⠀⠘⣿⣿⣿⣾⠁          ");
+            System.out.println("                ⣽⣿⣿⣿⣇⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⢹⣿⡇⠀⠀⠀⠀⠀⣤⡆⠀⠀⠀⢸⣿⣿⣿⠏⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣦⠀⣿⣿⣿⣻⡆          ");
+            System.out.println("                ⡿⢿⣿⣿⣿⣦⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⣰⣿⠇⠀⠀⠀⠀⣠⣾⣥⠀⠀⠀⢸⣿⣿⣿⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⣿⣿⣿⣼⡇          ");
+            System.out.println("                ⠰⣾⣿⣿⣿⣿⣷⣄⠙⠻⢿⣿⣿⣿⠿⠛⠁⠀⣠⣾⣿⡏⠀⠀⢀⣤⣾⣿⣿⣿⣦⠀⠀⠘⢿⣿⣿⡆⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢰⣿⣿⣿⡟⠁         ");
+            System.out.println("                ⠀⠸⣿⡽⣿⣿⣿⣿⣿⣶⣤⣤⣤⣀⣠⣤⣶⣿⣿⣿⠟⠁⢀⣴⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⢾⣿⣿⣿⣄⠀⠘⢿⣿⣿⣿⣿⣿⣿⣿⠿⣣⣿⣿⣿⣿⠃⠀        ");
+            System.out.println("                ⠀⠑⠠⢳⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⠋⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠈⣿⣿⣿⣿⣷⣤⣀⠀⠁⠀⢉⣩⣤⣶⣿⣿⣿⣿⣿⣿⠄⠀          "); 
+            System.out.println("                ⠀⠲⡄⠀⠛⣿⠿⣿⣿⣿⣿⣿⡿⣯⡾⠋⠁⠀⠁⠀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠘⠺⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣯⡏⠀⠀       ");
+            System.out.println("                ⠀⠀⣤⣠⡀⠸⠓⢿⣿⣟⠉⢿⡑⠃⠀⠀⠀⠀⠀⠀⠐⢿⣿⡿⠛⢿⡿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠈⠻⣿⣿⣿⡟⣭⣿⣿⣿⠿⣿⣿⣿⣿⣿⡿⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠻⣿⣿⣞⣿⣻⣿⣿⣷⣾⣧⣤⣄⣀⠀⠀⠀⠀⠀⠀⣸⠇⠀⠀⠈⠂⠉⢭⣺⣿⡷⠃⠀⠀⠀⠀⠀⠀⠙⣿⡆⠉⠙⠛⣹⣿⣿⣿⣿⣛⡏⠀⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠀⠘⢿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣛⢿⡿⣶⣶⣤⣶⣶⣦⣤⣀⣀⣀⣀⠀⠀⡹⣿⠁⠀⠀⠀⠀⠀⢀⠀⢴⣯⠀⣀⣴⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀⠀        ");
+            System.out.println("               ⠀⠀⠀⠀⠀⠿⢿⣿⣿⣿⣿⡻⣿⣿⣿⢼⡓⠨⣄⣸⠏⠉⠙⣿⠟⠻⠿⣿⠿⠶⢿⣯⣄⣀⣀⣠⣴⢿⣿⣟⣿⣿⣿⣿⣿⣿⣿⠟⠿⣿⣿⠁⠀⠀⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣷⣼⣿⣋⣻⣷⣄⣈⣿⡀⠀⠀⣸⠀⠀⠀⡏⠀⠀⠀⢻⠁⠨⢿⣏⠿⣷⣿⣼⣿⣿⣿⣿⣿⠟⠁⠀⢊⣿⠏⠀⠀⠀⠀⠀⠀         ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠸⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣤⣴⣷⣄⣀⣀⣼⠀⠀⣸⣏⣽⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀⠈⣾⠀⠀⠀⠀⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⡟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀         ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣇⠙⠻⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀         ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⠄⠀⠈⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀          ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢟⣿⣿⣆⢸⡏⠁⠀⢹⡁⠀⠀⠹⡇⠀⠙⡇⠀⢹⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣶⣶⣶⣧⣀⢀⣰⣇⠀⢀⣧⢀⣤⣼⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀             ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⢨⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⣿⣿⡿⠛⠋⠀⠀⣹⣿⠎⠶⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");  
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢨⣧⠀⠀⠀⠀⠰⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀              ");  
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀              "); 
+            System.out.println("                                   ______ _   _ _   _                                          ");
+            System.out.println("                                   | ___ \\ | | | \\ | |                                           ");
+            System.out.println("                                   | |_/ / | | |  \\| |                                          ");
+            System.out.println("                                   |    /| | | | . ` |                                          ");
+            System.out.println("                                   | |\\ \\| |_| | |\\  |                                          ");
+            System.out.println("                                   \\_| \\_|\\___/\\_| \\_/                                           " + ANSI_RESET);                       
+            System.out.println("\nA Text-based " + ANSI_RED + "Horror RPG " + ANSI_RESET +"made by Anthony James D. Bargo from BSCS 1C");;
+                scene = false;
+                System.out.println("(1) Start Game");
+                System.out.println("(2) RUN Records");
+                System.out.println("(3) Credits");
+                System.out.println("(4) Exit Game");
+                input = readInt("->", 4);
+                    if(input == 1){
+                        GameLogic.enterToContinue();
+                        scene = true;
+                    }
+                        else if(input == 2){
+                            clearConsole();
+                            System.out.println(ANSI_RED + " ____  _____ ____ ___  ____  ____  ____  "+
+                                                          "\n|  _ \\| ____/ ___/ _ \\|  _ \\|  _ \\/ ___|  "+
+                                                          "\n| |_) |  _|| |  | | | | |_) | | | \\___ \\  "+
+                                                          "\n|  _ <| |__| |__| |_| |  _ <| |_| |___) |"+
+                                                          "\n|_| \\_\\_____\\____\\___/|_| \\_\\____/|____/ "+
+                                                          "\n                                            " +ANSI_RESET);
+                            System.out.print(ANSI_Purple);
+                            readLogs();
+                            System.out.print(ANSI_RESET);
+                            scene = false;
+                            enterToContinue();
+                        }
+                            else if(input == 3){
+                                clearConsole();
+                                System.out.println(ANSI_RED + "   ____  _   _    _    ____      ___        _______    "+
+                                                  "\n  / ___|| | | |  / \\  |  _ \\    / \\ \\      / /_   _|"+
+                                                  "\n  \\___ \\| |_| | / _ \\ | |_) |  / _ \\ \\ /\\ / /  | |  "+
+                                                  "\n   ___) |  _  |/ ___ \\|  _ <  / ___ \\ V  V /   | |  "+
+                                                  "\n  |____/|_| |_/_/   \\_\\_| \\_\\/_/   \\_\\_/\\_/    |_|" + ANSI_RESET);
+                                System.out.println(ANSI_Purple+" _   _           _         "+
+                                                               "\n | \\ | | __ _ ___| |__  "+
+                                                               "\n |  \\| |/ _` / __| '_ \\ "+
+                                                               "\n | |\\  | (_| \\__ \\ | | |"+
+                                                               "\n |_| \\_\\|\\__,_|___/_| |_|"+
+                                                               "\n  _  __         _     _   "+
+                                                               "\n | |/ /___  ___| |__ (_) "+
+                                                               "\n | ' // _ \\/ __| '_ \\| |"+
+                                                               "\n | . \\  __/\\__ \\ | | | |"+
+                                                               "\n |_|\\_\\___||___/_| |_|_|"+
+                                                               "\n  ____                    _     "+ 
+                                                               "\n | __ )  ___  _ __  _ __ (_) ___ "+
+                                                               "\n |  _ \\ / _ \\| '_ \\| '_ \\| |/ _ \\"+
+                                                               "\n | |_) | (_) | | | | | | | |  __/"+
+                                                               "\n |____/ \\___/|_| |_|_| |_|_|\\___|"+
+                                                               "\n  ____                _           "+
+                                                               "\n / ___|   _  __ _  __| |_ __ ___  "+
+                                                               "\n | |  | | | |/ _` |/ _` | '__/ _ \\ "+
+                                                               "\n | |__| |_| | (_| | (_| | | | (_) |"+
+                                                               "\n  \\____\\__,_|\\__,_|\\__,_|_|  \\___/ "+
+                                                               "\n      _ _                    _ "+
+                                                               "\n     | | |__   ___  _ __ ___| |"+
+                                                               "\n  _  | | '_ \\ / _ \\| '__/ _ \\ |"+
+                                                               "\n | |_| | | | | (_) | | |  __/ |"+
+                                                               "\n  \\___/|_| |_|\\___/|_|  \\___|_|"+ ANSI_RESET);
+                                enterToContinue();
+                            }
+                                else if(input == 4){
+                                    scene = true;
+                                    System.exit(0);
+                                }
+            }while(!scene);
+                //Getting player name
+                do { 
+                    clearConsole();
+                    printHeading("Please enter " +ANSI_RED+  "YOUR"+ ANSI_RESET +" name: " );
+                    System.out.println(" ");
+                    name = sc.nextLine();
+                //Asking the player if the name entered is correct
+                    clearConsole();
+                    System.out.println("Your name is: " + ANSI_RED + name + ANSI_RESET +".\nIs this correct?");
+                    System.out.println("(1) Yes!");
+                    System.out.println("(2) No, I want to change my name.");
+                    int input = readInt("-> ", 2);
+                    if(input == 1){
+                        GameLogic.name  = name; 
+                        nameSet = true;
+                    }
+                        else{
+                            sc.nextLine();
+                        }       
+                } while(!nameSet); 
+
+                Story.printDisclaimer();
+
+                Story.printIntro();
+        
+                Story.printFirstAct();
+        
+                Story.printSecondAct();
+        
+                Story.printThirdAct();
+        
+                Story.printFourthAct();
+        
+                Story.printFifthAct();
+        
+                Story.printSixthACt();     
+                
+                Story.printSeventhAct();
+
+                Story.printEigthAct();
+
+                Story.printNinthAct();
+
+                Story.printTenthAct();
+
+                Story.printEleventhAct();
+    }
+
+        public static void logs(){
+            try{
+                FileWriter out = new FileWriter("./rpgProject/log.txt", true);
+                if(win == true){
+                    out.write(GameLogic.name + " lived to tell the tale.\n");
+                }
+                    else if(win == false){
+                        if(hanako == true){
+                        out.write(GameLogic.name + " was killed by Hanako.\n");
+                        }
+                            else if(dobbi == true){
+                                out.write(GameLogic.name + " was killed by Dobbi.\n");
+                            }
+                                else if(cclown == true){
+                                    out.write(GameLogic.name + " was killed by PenniWise.\n");
+                                }
+                                    else if(deadbat == true){
+                                        out.write(GameLogic.name + " was killed by the Darkness.\n");
+                                    }
+                                        else if(ccorny){
+                                            out.write(GameLogic.name + " was killed for being Corny.\n");
+                                        }
+                                            else if(debil == true){
+                                                out.write(GameLogic.name + " was killed by the Devil.\n");
+                                            }
+                                                else if(jigg == true){
+                                                    out.write(GameLogic.name + " was killed by Jiggsaw.\n");
+                                                }
+                        }
+                out.close();
+            }
+            
+            catch (Exception e){
+                System.err.println("An error occured while writing the file to: " + e.getMessage());
+            } 
+        }
+        public static void readLogs(){
+            final File file = new File( "./rpgProject/log.txt" );
+
+            try ( final Scanner scanner = new Scanner( file ); ) {
+            while ( scanner.hasNextLine() ) {
+                String line = scanner.nextLine();
+                System.out.println( line );
+            }
+            } catch ( FileNotFoundException e ) {
+            e.printStackTrace();
+        }
+        }
+
+        public static void batteryChecker(){
+        if(battery == 10){
+            clearConsole();
+            System.out.println("Your phone buzzed. Your battery is only at " + battery +"%");
+            enterToContinue();
+        }
+            else if(battery <= 0){
+                System.out.println("You phone vibrated as it drew its last light. Your battery died and it's all pitch black.");
+                enterToContinue();
+                clearConsole();
+                System.out.println(ANSI_RED + "▓█████▄  ▄▄▄       ██▀███   ██ ▄█▀ ███▄    █ ▓█████   ██████   ██████       "+
+                               "\n▒██▀ ██▌▒████▄    ▓██ ▒ ██▒ ██▄█▒  ██ ▀█   █ ▓█   ▀ ▒██    ▒ ▒██    ▒     "+
+                               "\n░██   █▌▒██  ▀█▄  ▓██ ░▄█ ▒▓███▄░ ▓██  ▀█ ██▒▒███   ░ ▓██▄   ░ ▓██▄       "+
+                               "\n░▓█▄   ▌░██▄▄▄▄██ ▒██▀▀█▄  ▓██ █▄ ▓██▒  ▐▌██▒▒▓█  ▄   ▒   ██▒  ▒   ██▒    "+
+                               "\n░▒████▓  ▓█   ▓██▒░██▓ ▒██▒▒██▒ █▄▒██░   ▓██░░▒████▒▒██████▒▒▒██████▒▒    "+
+                               "\n▒▒▓  ▒  ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒ ▒▒ ▓▒░ ▒░   ▒ ▒ ░░ ▒░ ░▒ ▒▓▒ ▒ ░▒ ▒▓▒ ▒ ░    "+
+                               "\n░ ▒  ▒   ▒   ▒▒ ░  ░▒ ░ ▒░░ ░▒ ▒░░ ░░   ░ ▒░ ░ ░  ░░ ░▒  ░ ░░ ░▒  ░ ░    "+
+                               "\n░ ░  ░   ░   ▒     ░░   ░ ░ ░░ ░    ░   ░ ░    ░   ░  ░  ░  ░  ░  ░      "+
+                               "\n░          ░  ░   ░     ░  ░            ░    ░  ░      ░        ░      "+
+                               "\n  ░                                                                      "+  
+                               "\n▄████▄   ▒█████   ███▄    █   ██████  █    ██  ███▄ ▄███▓▓█████   ██████ "+
+                               "\n▒██▀ ▀█  ▒██▒  ██▒ ██ ▀█   █ ▒██    ▒  ██  ▓██▒▓██▒▀█▀ ██▒▓█   ▀ ▒██    ▒ "+
+                               "\n▒▓█    ▄ ▒██░  ██▒▓██  ▀█ ██▒░ ▓██▄   ▓██  ▒██░▓██    ▓██░▒███   ░ ▓██▄   "+
+                               "\n▒▓▓▄ ▄██▒▒██   ██░▓██▒  ▐▌██▒  ▒   ██▒▓▓█  ░██░▒██    ▒██ ▒▓█  ▄   ▒   ██▒"+
+                               "\n▓███▀ ░░ ████▓▒░▒██░   ▓██░▒██████▒▒▒▒█████▓ ▒██▒   ░██▒░▒████▒▒██████▒▒   "+
+                               "\n░ ░▒ ▒  ░░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ▒ ▒▓▒ ▒ ░░▒▓▒ ▒ ▒ ░ ▒░   ░  ░░░ ▒░ ░▒ ▒▓▒ ▒ ░ "+
+                               "\n░  ▒     ░ ▒ ▒░ ░ ░░   ░ ▒░░ ░▒  ░ ░░░▒░ ░ ░ ░  ░      ░ ░ ░  ░░ ░▒  ░ ░    "+
+                               "\n░        ░ ░ ░ ▒     ░   ░ ░ ░  ░  ░   ░░░ ░ ░ ░      ░      ░   ░  ░  ░   "+
+                               "\n░ ░          ░ ░           ░       ░     ░            ░      ░  ░      ░  "+
+                               "\n░                                                                          " + ANSI_RESET);
+                               deadbat = true;
+                               enterToContinue();
+                               clearConsole();
+                               gameOver();
+
+            }
+    }
+        public static void gameOver(){
+            GameLogic.clearConsole();
+            System.out.println(ANSI_RED +"██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ "+ 
+                                "\n██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗  "+
+                                "\n██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝  "+
+                                "\n██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗  "+
+                                "\n╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║  "+
+                                "\n╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝ " + ANSI_RESET);
+                                if(hanako == true){
+                                    System.out.println( ANSI_Purple + "                   Hay nako. Hanako. Wala na 'ko." + ANSI_RESET);
+                                }
+                                    else if(dobbi == true){
+                                        System.out.println( ANSI_Purple + "                            Bad Dobbi!" + ANSI_RESET);
+                                    }
+                                        else if(cclown == true){
+                                            System.out.println( ANSI_Purple + "                 Tasty, tasty, beautiful fear." + ANSI_RESET);
+                                        }
+                                            else if(deadbat == true){
+                                                System.out.println( ANSI_Purple + "                       Died in the dark" + ANSI_RESET);
+                                            }
+                                                else if(ccorny == true){
+                                                    System.out.println( ANSI_Purple + "       If being corny kills... Oh right, it does. You're dead." + ANSI_RESET);
+                                                }
+                                                    else if(debil == true){
+                                                        System.out.println( ANSI_Purple + "                       Be not afraid." + ANSI_RESET);
+                                                    }
+                                                        else if(jigg == true){
+                                                            System.out.println( ANSI_Purple + "                    Here's your key to freedom." + ANSI_RESET);
+                                                        }
+                                battery = 20;
+                                win = false;                  
+                                logs();
+                                deadbat = false;
+                                hanako = false;
+                                dobbi= false;
+                                ccorny = false; 
+                                debil = false; 
+                                jigg = false; 
+                                knife = false; 
+                                sock = false; 
+                                joke = false;
+                                knowledge = false;
+                                napkin = false;
+                                napkinw = false; 
+                                key = false;  
+                                GameLogic.enterToContinue();
+                                GameLogic.clearConsole();
+                                GameLogic.gameLoop();
+                                }
+
+                    public static void gameVictory(){
+                        System.out.println(ANSI_Green + "      ███████╗███████╗ ██████╗ █████╗ ██████╗ ███████╗██████╗ ██╗    "+
+                                                     "\n       ██╔════╝██╔════╝██╔════╝██╔══██╗██╔══██╗██╔════╝██╔══██╗██║  "+
+                                                     "\n       █████╗  ███████╗██║     ███████║██████╔╝█████╗  ██║  ██║██║  "+
+                                                     "\n       ██╔══╝  ╚════██║██║     ██╔══██║██╔═══╝ ██╔══╝  ██║  ██║╚═╝  "+
+                                                     "\n       ███████╗███████║╚██████╗██║  ██║██║     ███████╗██████╔╝██╗  "+
+                                                     "\n       ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═════╝ ╚═╝" + ANSI_RESET);
+                                                     System.out.println( ANSI_Purple + "   Congratulations " + ANSI_RESET + ANSI_RED + GameLogic.name + ANSI_RESET + ANSI_Purple + "! You survived the horrors of Gorbon College." + ANSI_RESET);
+                                                     battery = 20;
+                                                     win = true;
+                                                     logs();
+                                                     deadbat = false;
+                                                     hanako = false;
+                                                     dobbi= false;
+                                                     ccorny = false; 
+                                                     debil = false; 
+                                                     jigg = false; 
+                                                     knife = false; 
+                                                     sock = false; 
+                                                     joke = false;
+                                                     knowledge = false;
+                                                     napkin = false;
+                                                     napkinw = false; 
+                                                     key = false;
+                                                     enterToContinue();
+                                                     clearConsole();
+                                                     gameLoop();
+                    }
+            public static void gameLoop(){
+                isRunning = true;
+                do{
+                    GameLogic.startGame();
+            }while(isRunning = true);
+            }
+}
+
+import java.io.*;
+
+import java.util.Scanner;
+
+public class GameLogic {
+    static Scanner sc = new Scanner(System.in);
+    public static boolean isRunning;
+    public static String name;
+    public static int battery = 20;
+    public static int input;
+    public static boolean scene, win;
+    public static boolean deadbat, hanako, dobbi, cclown, ccorny, debil, jigg, knife, sock, joke, knowledge, napkin, napkinw, key = false;
+    public static final String ANSI_RESET = "\u001B[0m", ANSI_RED = "\u001B[31m", ANSI_Black = "\u001B[30m", ANSI_Purple = "\u001B[35m", ANSI_Green = "\u001B[32m";
+
+    //method to get user input 
+    public static int readInt(String prompt, int userChoices){
+        int input;
+
+        do { 
+            System.out.print(prompt);
+            try { 
+                input = Integer.parseInt(sc.next());
+                    if (input < 1 || input > userChoices) {
+                        System.out.println("Enter a value between 1 and " + userChoices);
+                    }
+            } catch (Exception e){
+                input = -1;
+                System.out.println("Enter an integer.");
+            }
+		}
+			while (input < 1 || input > userChoices);
+			return input;
+	}
+ 
+         
+    //method to simulate clearing out the console
+    public static void clearConsole(){
+        for(int i = 0; i < 100; i++){
+            System.out.println("");
+        }
+        }
+    
+    //method to print a separator with length n
+    public static void printSeperator(int n){
+        for (int i = 0; i < n; i++){
+            System.out.print(ANSI_RED + "~" +ANSI_RESET);
+        }
+    }
+    //method to print a heading
+    public static void printHeading(String title){
+        printSeperator(30);
+		System.out.println();
+        System.out.println(title);
+        printSeperator(30);
+    }
+    //method to stop the game until user enters something
+    public static void enterToContinue(){
+        System.out.println("\nPress Enter to continue.");
+        try
+        {
+            System.in.read();
+            sc.nextLine();
+        }  
+        catch(Exception e)
+        {}           
+    }
+    
+    //Method to start the game
+    public  static void startGame(){
+        boolean nameSet = false;
+        String name;
+        //Printing the title Screen
+        do{
+            clearConsole();
+            printSeperator(40);
+            printSeperator(30);
+            System.out.println(ANSI_RED + 
+                                "\n                   ⠀⠀⠀⠀⢀⣀⣠⣤⢤⣤⣤⣄⡀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                ");
+            System.out.println("                     ⣰⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣀⣀⣀⢀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀             ");
+            System.out.println("                ⠀⠀⠰⣻⣿⣿⣿⡿⠛⠋⠙⠛⠛⠛⠿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣴⣾⣿⣷⣿⣿⣿⣽⣷⣿⣿⣬⣿⣿⣛⠂⠀⠀⠀           ");
+            System.out.println("                ⠀⣠⣾⣿⣿⣿⠋⣠⣶⣶⣶⣦⣤⣤⣀⠀⠙⢿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀          ");
+            System.out.println("                ⣠⣿⣿⣿⣿⢃⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠈⠻⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⠟⠋⠁⠀⠀⠀⠀⠈⠙⠛⠿⣿⣿⣿⣿⣄⠀          ");
+            System.out.println("                ⣿⣻⣿⣿⡇⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀⠘⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⠟⠁⠀⠀⠀⣠⣤⣤⣄⣀⣀⠀⠀⠘⣿⣿⣿⣾⠁          ");
+            System.out.println("                ⣽⣿⣿⣿⣇⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⢹⣿⡇⠀⠀⠀⠀⠀⣤⡆⠀⠀⠀⢸⣿⣿⣿⠏⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣦⠀⣿⣿⣿⣻⡆          ");
+            System.out.println("                ⡿⢿⣿⣿⣿⣦⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⣰⣿⠇⠀⠀⠀⠀⣠⣾⣥⠀⠀⠀⢸⣿⣿⣿⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⣿⣿⣿⣼⡇          ");
+            System.out.println("                ⠰⣾⣿⣿⣿⣿⣷⣄⠙⠻⢿⣿⣿⣿⠿⠛⠁⠀⣠⣾⣿⡏⠀⠀⢀⣤⣾⣿⣿⣿⣦⠀⠀⠘⢿⣿⣿⡆⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢰⣿⣿⣿⡟⠁         ");
+            System.out.println("                ⠀⠸⣿⡽⣿⣿⣿⣿⣿⣶⣤⣤⣤⣀⣠⣤⣶⣿⣿⣿⠟⠁⢀⣴⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⢾⣿⣿⣿⣄⠀⠘⢿⣿⣿⣿⣿⣿⣿⣿⠿⣣⣿⣿⣿⣿⠃⠀        ");
+            System.out.println("                ⠀⠑⠠⢳⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⠋⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠈⣿⣿⣿⣿⣷⣤⣀⠀⠁⠀⢉⣩⣤⣶⣿⣿⣿⣿⣿⣿⠄⠀          "); 
+            System.out.println("                ⠀⠲⡄⠀⠛⣿⠿⣿⣿⣿⣿⣿⡿⣯⡾⠋⠁⠀⠁⠀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠘⠺⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣯⡏⠀⠀       ");
+            System.out.println("                ⠀⠀⣤⣠⡀⠸⠓⢿⣿⣟⠉⢿⡑⠃⠀⠀⠀⠀⠀⠀⠐⢿⣿⡿⠛⢿⡿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠈⠻⣿⣿⣿⡟⣭⣿⣿⣿⠿⣿⣿⣿⣿⣿⡿⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠻⣿⣿⣞⣿⣻⣿⣿⣷⣾⣧⣤⣄⣀⠀⠀⠀⠀⠀⠀⣸⠇⠀⠀⠈⠂⠉⢭⣺⣿⡷⠃⠀⠀⠀⠀⠀⠀⠙⣿⡆⠉⠙⠛⣹⣿⣿⣿⣿⣛⡏⠀⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠀⠘⢿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣛⢿⡿⣶⣶⣤⣶⣶⣦⣤⣀⣀⣀⣀⠀⠀⡹⣿⠁⠀⠀⠀⠀⠀⢀⠀⢴⣯⠀⣀⣴⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀⠀        ");
+            System.out.println("               ⠀⠀⠀⠀⠀⠿⢿⣿⣿⣿⣿⡻⣿⣿⣿⢼⡓⠨⣄⣸⠏⠉⠙⣿⠟⠻⠿⣿⠿⠶⢿⣯⣄⣀⣀⣠⣴⢿⣿⣟⣿⣿⣿⣿⣿⣿⣿⠟⠿⣿⣿⠁⠀⠀⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣷⣼⣿⣋⣻⣷⣄⣈⣿⡀⠀⠀⣸⠀⠀⠀⡏⠀⠀⠀⢻⠁⠨⢿⣏⠿⣷⣿⣼⣿⣿⣿⣿⣿⠟⠁⠀⢊⣿⠏⠀⠀⠀⠀⠀⠀         ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠸⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣤⣴⣷⣄⣀⣀⣼⠀⠀⣸⣏⣽⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀⠈⣾⠀⠀⠀⠀⠀⠀⠀        ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⡟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀         ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣇⠙⠻⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀         ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⠄⠀⠈⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀          ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢟⣿⣿⣆⢸⡏⠁⠀⢹⡁⠀⠀⠹⡇⠀⠙⡇⠀⢹⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣶⣶⣶⣧⣀⢀⣰⣇⠀⢀⣧⢀⣤⣼⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀             ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⢨⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⣿⣿⡿⠛⠋⠀⠀⣹⣿⠎⠶⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            ");  
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢨⣧⠀⠀⠀⠀⠰⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀              ");  
+            System.out.println("                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀              "); 
+            System.out.println("                                   ______ _   _ _   _                                          ");
+            System.out.println("                                   | ___ \\ | | | \\ | |                                           ");
+            System.out.println("                                   | |_/ / | | |  \\| |                                          ");
+            System.out.println("                                   |    /| | | | . ` |                                          ");
+            System.out.println("                                   | |\\ \\| |_| | |\\  |                                          ");
+            System.out.println("                                   \\_| \\_|\\___/\\_| \\_/                                           " + ANSI_RESET);                       
+            System.out.println("\nA Text-based " + ANSI_RED + "Horror RPG " + ANSI_RESET +"made by Anthony James D. Bargo from BSCS 1C");;
+                scene = false;
+                System.out.println("(1) Start Game");
+                System.out.println("(2) RUN Records");
+                System.out.println("(3) Credits");
+                System.out.println("(4) Exit Game");
+                input = readInt("->", 4);
+                    if(input == 1){
+                        GameLogic.enterToContinue();
+                        scene = true;
+                    }
+                        else if(input == 2){
+                            clearConsole();
+                            System.out.println(ANSI_RED + " ____  _____ ____ ___  ____  ____  ____  "+
+                                                          "\n|  _ \\| ____/ ___/ _ \\|  _ \\|  _ \\/ ___|  "+
+                                                          "\n| |_) |  _|| |  | | | | |_) | | | \\___ \\  "+
+                                                          "\n|  _ <| |__| |__| |_| |  _ <| |_| |___) |"+
+                                                          "\n|_| \\_\\_____\\____\\___/|_| \\_\\____/|____/ "+
+                                                          "\n                                            " +ANSI_RESET);
+                            System.out.print(ANSI_Purple);
+                            readLogs();
+                            System.out.print(ANSI_RESET);
+                            scene = false;
+                            enterToContinue();
+                        }
+                            else if(input == 3){
+                                clearConsole();
+                                System.out.println(ANSI_RED + "   ____  _   _    _    ____      ___        _______    "+
+                                                  "\n  / ___|| | | |  / \\  |  _ \\    / \\ \\      / /_   _|"+
+                                                  "\n  \\___ \\| |_| | / _ \\ | |_) |  / _ \\ \\ /\\ / /  | |  "+
+                                                  "\n   ___) |  _  |/ ___ \\|  _ <  / ___ \\ V  V /   | |  "+
+                                                  "\n  |____/|_| |_/_/   \\_\\_| \\_\\/_/   \\_\\_/\\_/    |_|" + ANSI_RESET);
+                                System.out.println(ANSI_Purple+" _   _           _         "+
+                                                               "\n | \\ | | __ _ ___| |__  "+
+                                                               "\n |  \\| |/ _` / __| '_ \\ "+
+                                                               "\n | |\\  | (_| \\__ \\ | | |"+
+                                                               "\n |_| \\_\\|\\__,_|___/_| |_|"+
+                                                               "\n  _  __         _     _   "+
+                                                               "\n | |/ /___  ___| |__ (_) "+
+                                                               "\n | ' // _ \\/ __| '_ \\| |"+
+                                                               "\n | . \\  __/\\__ \\ | | | |"+
+                                                               "\n |_|\\_\\___||___/_| |_|_|"+
+                                                               "\n  ____                    _     "+ 
+                                                               "\n | __ )  ___  _ __  _ __ (_) ___ "+
+                                                               "\n |  _ \\ / _ \\| '_ \\| '_ \\| |/ _ \\"+
+                                                               "\n | |_) | (_) | | | | | | | |  __/"+
+                                                               "\n |____/ \\___/|_| |_|_| |_|_|\\___|"+
+                                                               "\n  ____                _           "+
+                                                               "\n / ___|   _  __ _  __| |_ __ ___  "+
+                                                               "\n | |  | | | |/ _` |/ _` | '__/ _ \\ "+
+                                                               "\n | |__| |_| | (_| | (_| | | | (_) |"+
+                                                               "\n  \\____\\__,_|\\__,_|\\__,_|_|  \\___/ "+
+                                                               "\n      _ _                    _ "+
+                                                               "\n     | | |__   ___  _ __ ___| |"+
+                                                               "\n  _  | | '_ \\ / _ \\| '__/ _ \\ |"+
+                                                               "\n | |_| | | | | (_) | | |  __/ |"+
+                                                               "\n  \\___/|_| |_|\\___/|_|  \\___|_|"+ ANSI_RESET);
+                                enterToContinue();
+                            }
+                                else if(input == 4){
+                                    scene = true;
+                                    System.exit(0);
+                                }
+            }while(!scene);
+                //Getting player name
+                do { 
+                    clearConsole();
+                    printHeading("Please enter " +ANSI_RED+  "YOUR"+ ANSI_RESET +" name: " );
+                    System.out.println(" ");
+                    name = sc.nextLine();
+                //Asking the player if the name entered is correct
+                    clearConsole();
+                    System.out.println("Your name is: " + ANSI_RED + name + ANSI_RESET +".\nIs this correct?");
+                    System.out.println("(1) Yes!");
+                    System.out.println("(2) No, I want to change my name.");
+                    int input = readInt("-> ", 2);
+                    if(input == 1){
+                        GameLogic.name  = name; 
+                        nameSet = true;
+                    }
+                        else{
+                            sc.nextLine();
+                        }       
+                } while(!nameSet); 
+
+                Story.printDisclaimer();
+
+                Story.printIntro();
+        
+                Story.printFirstAct();
+        
+                Story.printSecondAct();
+        
+                Story.printThirdAct();
+        
+                Story.printFourthAct();
+        
+                Story.printFifthAct();
+        
+                Story.printSixthACt();     
+                
+                Story.printSeventhAct();
+
+                Story.printEigthAct();
+
+                Story.printNinthAct();
+
+                Story.printTenthAct();
+
+                Story.printEleventhAct();
+    }
+
+        public static void logs(){
+            try{
+                FileWriter out = new FileWriter("./rpgProject/log.txt", true);
+                if(win == true){
+                    out.write(GameLogic.name + " lived to tell the tale.\n");
+                }
+                    else if(win == false){
+                        if(hanako == true){
+                        out.write(GameLogic.name + " was killed by Hanako.\n");
+                        }
+                            else if(dobbi == true){
+                                out.write(GameLogic.name + " was killed by Dobbi.\n");
+                            }
+                                else if(cclown == true){
+                                    out.write(GameLogic.name + " was killed by PenniWise.\n");
+                                }
+                                    else if(deadbat == true){
+                                        out.write(GameLogic.name + " was killed by the Darkness.\n");
+                                    }
+                                        else if(ccorny){
+                                            out.write(GameLogic.name + " was killed for being Corny.\n");
+                                        }
+                                            else if(debil == true){
+                                                out.write(GameLogic.name + " was killed by the Devil.\n");
+                                            }
+                                                else if(jigg == true){
+                                                    out.write(GameLogic.name + " was killed by Jiggsaw.\n");
+                                                }
+                        }
+                out.close();
+            }
+            
+            catch (Exception e){
+                System.err.println("An error occured while writing the file to: " + e.getMessage());
+            } 
+        }
+        public static void readLogs(){
+            final File file = new File( "./rpgProject/log.txt" );
+
+            try ( final Scanner scanner = new Scanner( file ); ) {
+            while ( scanner.hasNextLine() ) {
+                String line = scanner.nextLine();
+                System.out.println( line );
+            }
+            } catch ( FileNotFoundException e ) {
+            e.printStackTrace();
+        }
+        }
+
+        public static void batteryChecker(){
+        if(battery == 10){
+            clearConsole();
+            System.out.println("Your phone buzzed. Your battery is only at " + battery +"%");
+            enterToContinue();
+        }
+            else if(battery <= 0){
+                System.out.println("You phone vibrated as it drew its last light. Your battery died and it's all pitch black.");
+                enterToContinue();
+                clearConsole();
+                System.out.println(ANSI_RED + "▓█████▄  ▄▄▄       ██▀███   ██ ▄█▀ ███▄    █ ▓█████   ██████   ██████       "+
+                               "\n▒██▀ ██▌▒████▄    ▓██ ▒ ██▒ ██▄█▒  ██ ▀█   █ ▓█   ▀ ▒██    ▒ ▒██    ▒     "+
+                               "\n░██   █▌▒██  ▀█▄  ▓██ ░▄█ ▒▓███▄░ ▓██  ▀█ ██▒▒███   ░ ▓██▄   ░ ▓██▄       "+
+                               "\n░▓█▄   ▌░██▄▄▄▄██ ▒██▀▀█▄  ▓██ █▄ ▓██▒  ▐▌██▒▒▓█  ▄   ▒   ██▒  ▒   ██▒    "+
+                               "\n░▒████▓  ▓█   ▓██▒░██▓ ▒██▒▒██▒ █▄▒██░   ▓██░░▒████▒▒██████▒▒▒██████▒▒    "+
+                               "\n▒▒▓  ▒  ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒ ▒▒ ▓▒░ ▒░   ▒ ▒ ░░ ▒░ ░▒ ▒▓▒ ▒ ░▒ ▒▓▒ ▒ ░    "+
+                               "\n░ ▒  ▒   ▒   ▒▒ ░  ░▒ ░ ▒░░ ░▒ ▒░░ ░░   ░ ▒░ ░ ░  ░░ ░▒  ░ ░░ ░▒  ░ ░    "+
+                               "\n░ ░  ░   ░   ▒     ░░   ░ ░ ░░ ░    ░   ░ ░    ░   ░  ░  ░  ░  ░  ░      "+
+                               "\n░          ░  ░   ░     ░  ░            ░    ░  ░      ░        ░      "+
+                               "\n  ░                                                                      "+  
+                               "\n▄████▄   ▒█████   ███▄    █   ██████  █    ██  ███▄ ▄███▓▓█████   ██████ "+
+                               "\n▒██▀ ▀█  ▒██▒  ██▒ ██ ▀█   █ ▒██    ▒  ██  ▓██▒▓██▒▀█▀ ██▒▓█   ▀ ▒██    ▒ "+
+                               "\n▒▓█    ▄ ▒██░  ██▒▓██  ▀█ ██▒░ ▓██▄   ▓██  ▒██░▓██    ▓██░▒███   ░ ▓██▄   "+
+                               "\n▒▓▓▄ ▄██▒▒██   ██░▓██▒  ▐▌██▒  ▒   ██▒▓▓█  ░██░▒██    ▒██ ▒▓█  ▄   ▒   ██▒"+
+                               "\n▓███▀ ░░ ████▓▒░▒██░   ▓██░▒██████▒▒▒▒█████▓ ▒██▒   ░██▒░▒████▒▒██████▒▒   "+
+                               "\n░ ░▒ ▒  ░░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ▒ ▒▓▒ ▒ ░░▒▓▒ ▒ ▒ ░ ▒░   ░  ░░░ ▒░ ░▒ ▒▓▒ ▒ ░ "+
+                               "\n░  ▒     ░ ▒ ▒░ ░ ░░   ░ ▒░░ ░▒  ░ ░░░▒░ ░ ░ ░  ░      ░ ░ ░  ░░ ░▒  ░ ░    "+
+                               "\n░        ░ ░ ░ ▒     ░   ░ ░ ░  ░  ░   ░░░ ░ ░ ░      ░      ░   ░  ░  ░   "+
+                               "\n░ ░          ░ ░           ░       ░     ░            ░      ░  ░      ░  "+
+                               "\n░                                                                          " + ANSI_RESET);
+                               deadbat = true;
+                               enterToContinue();
+                               clearConsole();
+                               gameOver();
+
+            }
+    }
+        public static void gameOver(){
+            GameLogic.clearConsole();
+            System.out.println(ANSI_RED +"██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ "+ 
+                                "\n██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗  "+
+                                "\n██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝  "+
+                                "\n██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗  "+
+                                "\n╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║  "+
+                                "\n╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝ " + ANSI_RESET);
+                                if(hanako == true){
+                                    System.out.println( ANSI_Purple + "                   Hay nako. Hanako. Wala na 'ko." + ANSI_RESET);
+                                }
+                                    else if(dobbi == true){
+                                        System.out.println( ANSI_Purple + "                            Bad Dobbi!" + ANSI_RESET);
+                                    }
+                                        else if(cclown == true){
+                                            System.out.println( ANSI_Purple + "                 Tasty, tasty, beautiful fear." + ANSI_RESET);
+                                        }
+                                            else if(deadbat == true){
+                                                System.out.println( ANSI_Purple + "                       Died in the dark" + ANSI_RESET);
+                                            }
+                                                else if(ccorny == true){
+                                                    System.out.println( ANSI_Purple + "       If being corny kills... Oh right, it does. You're dead." + ANSI_RESET);
+                                                }
+                                                    else if(debil == true){
+                                                        System.out.println( ANSI_Purple + "                       Be not afraid." + ANSI_RESET);
+                                                    }
+                                                        else if(jigg == true){
+                                                            System.out.println( ANSI_Purple + "                    Here's your key to freedom." + ANSI_RESET);
+                                                        }
+                                battery = 20;
+                                win = false;                  
+                                logs();
+                                deadbat = false;
+                                hanako = false;
+                                dobbi= false;
+                                ccorny = false; 
+                                debil = false; 
+                                jigg = false; 
+                                knife = false; 
+                                sock = false; 
+                                joke = false;
+                                knowledge = false;
+                                napkin = false;
+                                napkinw = false; 
+                                key = false;  
+                                GameLogic.enterToContinue();
+                                GameLogic.clearConsole();
+                                GameLogic.gameLoop();
+                                }
+
+                    public static void gameVictory(){
+                        System.out.println(ANSI_Green + "      ███████╗███████╗ ██████╗ █████╗ ██████╗ ███████╗██████╗ ██╗    "+
+                                                     "\n       ██╔════╝██╔════╝██╔════╝██╔══██╗██╔══██╗██╔════╝██╔══██╗██║  "+
+                                                     "\n       █████╗  ███████╗██║     ███████║██████╔╝█████╗  ██║  ██║██║  "+
+                                                     "\n       ██╔══╝  ╚════██║██║     ██╔══██║██╔═══╝ ██╔══╝  ██║  ██║╚═╝  "+
+                                                     "\n       ███████╗███████║╚██████╗██║  ██║██║     ███████╗██████╔╝██╗  "+
+                                                     "\n       ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═════╝ ╚═╝" + ANSI_RESET);
+                                                     System.out.println( ANSI_Purple + "   Congratulations " + ANSI_RESET + ANSI_RED + GameLogic.name + ANSI_RESET + ANSI_Purple + "! You survived the horrors of Gorbon College." + ANSI_RESET);
+                                                     battery = 20;
+                                                     win = true;
+                                                     logs();
+                                                     deadbat = false;
+                                                     hanako = false;
+                                                     dobbi= false;
+                                                     ccorny = false; 
+                                                     debil = false; 
+                                                     jigg = false; 
+                                                     knife = false; 
+                                                     sock = false; 
+                                                     joke = false;
+                                                     knowledge = false;
+                                                     napkin = false;
+                                                     napkinw = false; 
+                                                     key = false;
+                                                     enterToContinue();
+                                                     clearConsole();
+                                                     gameLoop();
+                    }
+            public static void gameLoop(){
+                isRunning = true;
+                do{
+                    GameLogic.startGame();
+            }while(isRunning = true);
+            }
+}
+
+public class Story extends GameLogic {
+
+    public static void printDisclaimer(){
+        GameLogic.clearConsole();
+        GameLogic.printSeperator(30);
+        System.out.println("\n        DISCLAIMER");
+        GameLogic.printSeperator(30);
+        System.out.println("\nThis is a work of fiction. Any names or characters, businesses or places, events or incidents, are fictitious.\nAny resemblance to actual persons, living or dead, or actual events is purely coincidental.");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+    }      
+    
+    public static void printIntro(){
+        GameLogic.clearConsole();
+        GameLogic.printSeperator(30);
+        System.out.println("\n          PROLOGUE");
+        GameLogic.printSeperator(30);
+        System.out.println("\nA hospital. \nA jail. \nA mental asylym. \nA cemetery.");
+        System.out.println("There are countless urban legends about the history of Gorbon College.");
+        System.out.println("Fear and laughter, the two opposing reactions that you will get once you tell them about these stories.");
+        System.out.println("But, are any of them real? Or are they just stories made to scare the students?");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+        System.out.println("Don't " + ANSI_RED + "you" + ANSI_RESET + " worry.");
+        System.out.println(ANSI_RED + "You'll " + ANSI_RESET + "find out soon enough.");
+        GameLogic.enterToContinue();
+    }   
+    public static void printFirstAct(){
+        GameLogic.clearConsole();
+        System.out.println("You woke up on a very familiar place.");
+        System.out.println("You are on your college's classroom at 4th floor.");
+        System.out.println("You checked your surroundings but you're having a hard time. The surrounding is pitch black. You can't see anything.");
+        do {
+            scene = false;
+        System.out.println("(1) Look for your phone in your pocket.");
+        System.out.println("(2) Try to look for the room's light switch.");
+        int input = readInt("->", 2);
+        if(input == 1){
+            GameLogic.clearConsole();
+            System.out.println("You found your phone in your pocket. You opened it and it lit up. The battery is at 20%");
+            System.out.println("You opened your phone's flashlight to check for your surrounding.");
+            battery = battery - 2;
+            GameLogic.enterToContinue();
+            scene = true;
+            GameLogic.clearConsole();
+        }
+            else if(input == 2){
+                GameLogic.clearConsole();
+                System.out.println("This has been your classroom for years now. You know full well the location of the light switch.");
+                System.out.println("You walked towards the location of the light switch, feeling your surrounding.");
+                System.out.println("You turned on the light switch. The light bulb flickered, trying its best to open.");
+                GameLogic.enterToContinue();
+                System.out.println("After some time, the lights finally turned on.");
+                GameLogic.enterToContinue();
+                scene = true;
+                GameLogic.clearConsole();
+            }
+        } while(!scene);
+            System.out.println(ANSI_RED+"⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⢉⠋⠉⠉⠉⠛⢿⠛⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⡎⠀⠀⠀⠀⠀⠈⢢⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⢰⠁⠄⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡴⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⠀⢀⠈⠀⠀⢿⣰⠀⠀⠀⢹⡆⠀⠀⠀⠀⠰⡀⠀⣆⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⢃⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⢸⠀⠘⡀⠀⡆⢿⢿⣧⡀⠀⠈⡷⡄⠀⢠⠰⡀⢡⠀⣿⢸⣿⣿⣿⣿⣿⣿⣿⣿⡟⢸⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠈⢰⡀⢣⣐⣸⣼⡇⠙⠇⠑⠂⠀⠜⠂⠀⠗⠀⡼⣼⣽⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⡈⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢹⠀⠀⠀⣧⠘⣿⣿⣿⣽⡄⠀⠀⠀⠀⢀⣿⣿⣶⣄⢣⡿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢱⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⡄⠀⡀⢹⠁⣿⣿⣟⣿⡇⠀⠀⠀⠀⠘⣿⣛⣿⣿⣿⡷⠀⠘⣿⣿⣿⣿⠿⠿⠿⢫⣼⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢱⠀⢳⠀⠳⡸⡷⠙⠿⠿⠛⠁⠀⠀⠀⠀⠀⠈⠛⠛⠋⣩⡃⠀⢺⣿⣿⣿⣧⢲⣼⣿⣾⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣸⠀⢸⣷⡔⢿⢦⠀⠀⠀⢀⣠⣤⢶⣶⢦⣤⣄⡀⠀⠐⣱⢣⣶⣿⣿⡏⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⢇⢿⡿⣮⣿⣯⡀⠀⢿⣧⣼⡾⣾⢿⢧⣿⣿⠀⣞⣵⣿⣿⣿⡟⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣌⣷⡜⢿⣛⡿⣦⣄⢸⠙⠛⠛⠛⢻⡟⢸⣾⡿⢻⣿⣿⣿⣶⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⢿⣿⣿⣽⣾⣿⠿⣦⢄⣀⣠⣿⣷⠟⠣⠋⠾⢿⣿⡟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⣼⣿⣇⠉⠁⠀⠀⢻⠀⠀⠀⢠⡟⠀⠀⠀⠀⢸⣇⡇⠀⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀⠀⣿⣿⡅⠀⠀⠀⠀⠈⣧⠀⣰⠟⠀⠀⠀⠀⠀⢸⣿⣷⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⠀⣿⣿⡧⠀⠀⠀⠀⠀⣈⠓⠋⠀⠀⠀⠀⠀⠀⣼⣿⡏⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀⠀⢹⣿⣧⠀⠀⣀⣤⣶⣿⣾⣿⣿⣶⣤⣀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿");
+            System.out.println("⣿⣿⣿⡿⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣦⣾⣿⣿⣿⠿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠙⠻⠻⠿");
+            System.out.println("⠿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣏⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ");
+            System.out.println("            ⢀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" + ANSI_RESET);
+        GameLogic.enterToContinue();
+    }
+    public static void printSecondAct(){
+        GameLogic.clearConsole();
+        System.out.println("You jumped out of surprise. You blinked your eye and the scary figure disappeared.");
+        System.out.println("You took your phone and checked for signal.");
+        System.out.println("Your phone has no signal. Your battery is only at " + battery + "%.");
+        System.out.println("You have nothing else with you besides yourself and your phone");
+        System.out.println("The night is dark and and the wind is cold. The very thought of the figured you saw earlier sends shivers to your spine.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": I need to get out of here...");
+        System.out.println("You muttered.");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+        System.out.println("You went to the door and checked outside. There are no lights except the farthest area which is the comfort room.");
+        do{
+            scene = false;
+        System.out.println("(1) Check for anything useful inside the room before leaving.");
+        System.out.println("(2) Leave the classroom.");
+        input = readInt("->", 2);
+        if(input == 1){
+            GameLogic.clearConsole();
+            System.out.println("You inspected every nook and cranny. You found nothing of any use.");
+            System.out.println("As you looked on the seat where you woke up, you found something");
+            System.out.println("You found a " + ANSI_RED + "knife." + ANSI_RESET);
+            knife = true;
+            scene = true;
+            GameLogic.enterToContinue();
+            GameLogic.clearConsole();
+        }
+            else if(input == 2){
+                scene = true;
+                GameLogic.clearConsole();
+            }
+        } while(!scene);
+    }
+    public static void printThirdAct(){
+        battery = battery - 2;
+        System.out.println("You exited the classroom. The hallway is very dark and only your phone's flashlight is your source of light.\nThe silence is not just deafening but also eerie.");
+        System.out.println("Everything that's happening is giving you goosebumps.");
+        do{
+            scene = false;
+        System.out.println("(1) Head towards the stairs and go downstairs.");
+        System.out.println("(2) Head towards the comfort room where the light is on.");
+        input = readInt("->", 2);
+        if(input == 1){
+            scene = true;
+            GameLogic.clearConsole(); 
+        }
+            else if(input == 2){
+                GameLogic.clearConsole();
+                System.out.println("You walked towards the comfort room. There's this feeling you can't scratch.");
+                System.out.println("As you walked past the entrance. You see that the men's comfort room is closed and door is shut tight.");
+                System.out.println("Moving your gaze on your on your right, you saw the women's comfort room's door and light both open.");
+                scene = true;
+                GameLogic.clearConsole();
+                System.out.println("You entered the comfort room. You can hear a female voice humming.");
+                do{
+                    scene = false;  
+                    System.out.println("(1) Head back and just go to the stairs.");
+                    System.out.println("(2) Check the cubicles one by one.");
+                    input = readInt("->", 2);
+                    if(input == 1){
+                        GameLogic.clearConsole();
+                        scene = true;
+                    }
+                        else if(input == 2){
+                            GameLogic.clearConsole();
+                            System.out.println("You first went to the nearest and first cubicle you saw.");
+                            System.out.println("You opened it and it was empty. There was no one and nothing but the spotless toilet.");
+                            GameLogic.enterToContinue();
+                            GameLogic.clearConsole();
+                            System.out.println("You opened the second cubicle. There was no one but, there was something.");
+                            System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ":I would like to quote my friend Jonash. \"May tae pero walang tao\"");
+                            GameLogic.enterToContinue();
+                            GameLogic.clearConsole();
+                            System.out.println("For the longest since you've woke up, you finally managed to push out a smile.");
+                            System.out.println("With a smile on your face, you slowly pushed the door of the third cubicle.");
+                            GameLogic.enterToContinue();
+                            GameLogic.clearConsole();
+                            COD.oopsHanako();
+                        }    
+                } while (!scene);
+            }
+        }while(!scene);          
+    }
+
+    public static void printFourthAct(){
+        battery = battery - 2;
+        batteryChecker();
+        System.out.println("You walked downstairs fast. You noticed that the entirety of the 3rd and 2nd floor were pitch dark as well.");
+        System.out.println("You continued walking downstairs. You finally arrived at the 1st floor. There is really no one else here.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Not a soul.");
+        System.out.println("You whispered to yourself.");
+        System.out.println("You continued walking heading towards the exit.");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+        System.out.println("You tried pushing the glass door. It didn't budge at all.");
+        System.out.println("You tried again and this time, with stronger force.");
+        System.out.println("It still didn't budge. You sighed. You tried screaming for help but no one answered.");
+        System.out.println("The transparent glass door should give you hope but it doesn't. If anything, it gives you despair.");
+        System.out.println("You are so close. Only a glass door is the only thing stopping you from attaining freedom.");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+        System.out.println("You held back your tears. You braced yourself.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": I can do this.");
+        System.out.println("You told yourself, trying to compose yourself.");
+        System.out.println("You checked the glass door again. \nIt finally dawned upon you that once locked from the outside, it cannot be opened from the inside.");
+        System.out.println("You tried to think. And then there it hit you. There is another exit on the far left side of the 1st floor.");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+        System.out.println("You walked towards the left side of the 1st floor. Upon arriving, a smile formed on your lips.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Finally, another exit.");
+        System.out.println("Your smile turned upside down and turned into a frown. This door is locked too.");
+        System.out.println("Thankfully, this exit can be unlocked from the inside.");
+        System.out.println("The only problem is that you don't have the key to unlock it.");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET +": Aren't the duplicate keys being kept on the janitor's office? Where was it again...?");
+        System.out.println("The 6th floor. You remembered being asked to fetch something from there before.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Who puts their janitor's office at the top most floor...?");
+        GameLogic.enterToContinue();
+        GameLogic.clearConsole();
+    }
+
+    public static void printFifthAct(){
+        battery = battery - 2;
+        batteryChecker();
+        GameLogic.clearConsole();
+        System.out.println("As you walked through the dark corridor, your flashlight shone through the elevator.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ":Is this working?");
+        System.out.println("You asked yourself. You walked towards the elvator.");
+        do{
+            scene = false;
+            System.out.println("(1) Use the elevator.");
+            System.out.println("(2) Use the stairs.");
+            input = readInt("->", 2);
+            if(input == 1){
+                GameLogic.clearConsole();
+                System.out.println("You pressed the buttons. After some time, it lit up and the elevator doors opened.");
+                System.out.println("You entered the elavator. There was no one else there but you. You pressed 6 on the button list.");
+                System.out.println("The elevator doors closed.");
+                GameLogic.enterToContinue();
+                GameLogic.clearConsole();
+                COD.getDobbied();
+            }   else if( input == 2){
+                GameLogic.clearConsole();
+                scene = true;
+                }
+        } while(!scene);
+    }
+    public static void printSixthACt(){
+        battery = battery - 2;
+        batteryChecker();
+        GameLogic.clearConsole();
+        System.out.println("You walked upstairs. As you walked past by the 2nd floor, you saw multi-color lights on the far right side of the hallway.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET +": There were no lights there last time...");
+        do{
+            scene = false;
+        System.out.println("(1) Head towards the room where the multi-color light is coming from.");
+        System.out.println("(2) Ignore it and proceed walking upstairs to 6th floor.");
+        input = readInt("->", 2);
+        if(input == 1){
+            GameLogic.clearConsole();
+            System.out.println("You walked towards the room with a lot of lights coming from it.");
+            System.out.println("At the door, there is a sign saying \"Birthday Party\".");
+            System.out.println("You can hear laughter and horn honking from the inside.");
+            scene = true;
+            do {
+                scene = false;
+                System.out.println("(1) Enter the room as there might be someone there who can help you.");
+                System.out.println("(2) Walk away and continue climbing the stairs to 6th floor.");
+                input = readInt("->", 2);
+                if(input == 2){
+                    GameLogic.clearConsole();
+                    scene = true;
+                    GameLogic.enterToContinue();
+
+                }
+                    else if(input == 1){
+                        GameLogic.clearConsole();
+                        System.out.println("As you entered the room, you saw a figure.");
+                        scene = true;
+                        System.out.println(ANSI_RED +"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                           "\n ⠀⠀⠀⠀⠀⣠⢾⣿⡿⠋⢉⡉⠲⡀⠀⢀⠀⠀⢀⣠⣤⣀⡀⠀⠀⠀⠀⠀⢀⡔⠊⠉⠙⢿⣷⡷⣄⠀⠀⠀⠀⠀   "+
+                                           "\n ⠀⠀⠀⡄⢰⣷⣿⣿⡷⠊⡁⠀⢀⣧⠀⡎⢀⣖⣥⣾⣿⣿⡛⢦⣴⣶⣶⣶⣼⡀⠁⠈⠗⢾⣿⣿⣼⡆⢀⠀⠀⠀ "+
+                                           "\n ⠀⠀⠀⢷⣾⣿⣿⣿⣿⠀⠉⠉⠉⡇⣸⣿⣿⣿⣿⢿⣿⣿⡿⣿⣿⣿⣿⣿⣿⡏⠐⠈⠀⣼⣿⣿⣿⣿⣼⠀⠀⠀  "+
+                                           "\n ⠀⠀⢇⣸⣿⣿⣿⣿⣿⣤⠀⠀⢸⡶⠟⠉⠁⠀⠀⠈⣿⣿⣄⠈⠻⢿⣿⣿⣿⠇⠀⠀⣤⣿⣿⣿⣿⣿⣯⣰⠀⠀  "+
+                                           "\n ⠀⢄⢸⣿⣿⣿⣿⣿⣿⣿⣆⣦⠋⠀⠀⠀⠀⠀⠀⠀⠈⠻⣿⣷⣤⣀⠈⢉⣿⣶⣶⢠⣿⣿⣿⣿⣿⣿⣿⡇⢠⠃  "+
+                                           "\n ⠀⠘⣼⣿⣿⣿⣿⣿⣿⣿⣿⣥⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠭⣟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠇⠀  "+
+                                           "\n ⠀⢀⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⡀  "+
+                                           "\n ⠈⢿⡄⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⢀⠔⠂⠲⡄⠀⠀⠀⠀⢠⠊⠉⠑⡄⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⢁⣿⠃ "+
+                                           "\n⠀⠈⢻⣞⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⡜⠀⣤⠀⢸⠀⠀⠀⠀⡎⠀⢠⠀⢱⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣯⡾⠁⠀  "+
+                                           "\n⠀⠀⠀⢝⢿⣿⣿⣿⠻⣿⣿⡇⠀⠀⣇⣠⣿⣄⣠⠀⠀⠀⠀⡇⢀⣾⡄⢸⠀⠀⢿⣿⠏⣽⣿⣿⣿⡿⠛⠀⠀⠀  "+
+                                           "\n⠀⠀⠀⠀⠑⠮⣿⣿⡄⠈⣿⡇⠀⠐⣿⣿⠛⢿⣿⠀⠀⠀⠀⣿⡿⠛⢿⣿⡀⠀⣼⡏⢠⣿⣿⣟⡯⠚⠁⠀⠀⠀  "+
+                                           "\n⠀⠀⠀⠀⠀⠀⠀⠉⢣⠀⢹⡇⠀⠀⢿⣿⣶⣿⡿⠀⠀⠀⠀⢿⣷⣴⣾⡿⠁⠀⣿⡇⡼⠛⠉⠁⠀⠀⠀⠀⠀⠀  "+
+                                           "\n⠀⠀⠀⠀⠀⠀⠀⠀⠈⢇⠸⡇⠀⠀⠀⠉⣿⠉⠀⣠⣶⣶⣤⠀⠙⢻⠋⠀⠀⠀⣿⢀⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                                           "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢦⣧⠀⢰⣄⠀⠉⠀⠀⣿⣿⣿⣿⠃⠀⠈⠀⣤⠄⢀⣇⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  "+
+                                           "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡄⠈⣿⣷⣶⣦⣤⣬⣿⣿⣥⣤⣤⣴⣾⡿⠀⡸⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                                           "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣧⠀⠹⣿⣿⡉⡙⠛⠻⠿⠛⠋⣿⣿⣿⠃⢰⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢇⠀⠻⣿⣿⠷⠿⣾⡾⠶⢿⣿⡿⠃⢠⠃⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣼⠀⠘⡆⠀⠙⢿⣿⣶⣤⣴⣾⣿⠟⠀⢀⠇⠀⢸⣿⣶⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⡰⢿⣿⣿⠀⠀⠘⡄⠀⠀⠉⠛⠛⠛⠋⠁⠀⢠⠎⠀⠀⠘⣿⣿⡿⠛⣆⠀⠀⠀⠀⠀⠀⠀ "+
+                                           "\n ⠀⠀⠀⠀⠀⠀⠀⣰⠃⠀⠈⠙⠲⠤⢄⣘⣦⡀⠀⠀⠀⠀⠀⢀⡴⣁⣀⣀⠤⠔⠋⠁⣀⡀⠈⣧⡀⠀⠀⠀⠀⠀"+
+                                           "\n ⠀⠀⠀⠀⠀⢀⡴⠛⢉⡇⠀⡠⡄⠀⠀⠀⠀⠉⠒⠤⠤⠴⢒⡉⠉⠀⠀⢠⠖⠢⢄⡀⡇⠈⠙⠳⣌⠒⠀⠀⠀⠀ "+
+                                           "\n ⠀⠀⠀⠀⠐⠁⠀⢀⡞⡠⠊⠀⡄⠀⡠⠊⠉⠑⡄⠀⠀⡴⠉⠈⠑⢦⡀⢸⠀⠀⠀⠈⠻⡄⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                           "\n ⠀⠀⠀⠀⠀⠀⠀⠚⠋⠀⠀⢀⡧⠊⠀⠀⠀⠀⠘⣄⡼⠁⠀⠀⠀⠀⠙⢾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠸⡇⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+ ANSI_RESET);
+                        enterToContinue();
+                        System.out.println(ANSI_RED + "                    \"H E L L O\"" + ANSI_RESET);
+                        System.out.println("In front of you, a creepy clown just greeted you.");
+                        System.out.println("You are scared. This is not the help you thought you'd get.");
+                        enterToContinue();
+                        clearConsole();
+                        System.out.println(ANSI_RED + "         \"H E L L O\"" + ANSI_RESET);
+                        System.out.println("The creepy clown greeted you again.");
+                            do {
+                                scene = false;
+                                System.out.println("(1) Turn around and run for the door.");
+                                System.out.println("(2) Muster up the courage to say \"Hi\" back.");
+                                input = readInt("->", 2);
+                                    if(input == 1){
+                                        scene = true;
+                                        clearConsole();
+                                        System.out.println("You turned around and run for the door.");
+                                        System.out.println("You keep turning the doorknob but it won't budge.");
+                                        System.out.println("The door is locked.");
+                                        COD.flyFlyButterfly();
+                                    }
+                                        else if(input == 2){
+                                            clearConsole();
+                                            scene = true;
+                                            System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET +": H-h-hi");
+                                            System.out.println("It took all of your courage just to greet back.");
+                                            System.out.println(ANSI_RED + "PenniWise: My name is PenniWise. ");
+                                            System.out.println("PenniWise: I can't slice my cake... do you have a knife for me?"+ ANSI_RESET);
+                                            do{
+                                                scene = false;
+                                                System.out.println("(1) Y-yes, I do.");
+                                                System.out.println("(2) N-no, I don't");
+                                                input = readInt("->", 2);
+                                                    if(input == 1){
+                                                        clearConsole();
+                                                        scene = true;
+                                                        if(knife == true){
+                                                            scene = true;
+                                                            System.out.println(ANSI_RED + "PenniWise: Oh wow you do!");
+                                                            System.out.println("Can PenniWise have it?" + ANSI_RESET);
+                                                                do{ 
+                                                                    scene = false;
+                                                                    System.out.println("(1) Hand " + ANSI_RED + "PenniWise" + ANSI_RESET +" the knife.");
+                                                                    System.out.println("(2) Try to attack " + ANSI_RED + "PenniWise" + ANSI_RESET + " the knife.");
+                                                                    input = readInt("->", 2);
+                                                                        if(input == 1){
+                                                                            scene = true;
+                                                                            clearConsole();
+                                                                            System.out.println(ANSI_RED + "PenniWise: Thank you " + GameLogic.name + ". Have a sit and eat some cake with me." + ANSI_RESET);
+                                                                            System.out.println("You nervously took a sit. " + ANSI_RED + "PenniWise " + ANSI_RESET + "smiled at you and gave you a slice of cake.");
+                                                                            System.out.println("You took a bite and the cake tasted fine. It was not made of human remains or blood like you feared.");
+                                                                            enterToContinue();
+                                                                            clearConsole();
+                                                                            System.out.println("The two of you finally finished eating.");
+                                                                            System.out.println(ANSI_RED + "PenniWise: Thank you for helping me and accompanying me. As thanks, let me give you a " + ANSI_RESET + ANSI_Purple + "joke written in a piece of paper." +ANSI_RESET );
+                                                                            System.out.println("You hesistantly took the piece of paper. He motioned you to go out and you head for the door.");
+                                                                            joke = true;
+                                                                            enterToContinue();
+                                                                            clearConsole();
+                                                                        }
+                                                                            else if(input == 2){
+                                                                                scene = true;
+                                                                                clearConsole();
+                                                                                System.out.println(ANSI_RED + "PenniWise" + ANSI_RESET + " dodged your attack with an ease.");
+                                                                                System.out.println(ANSI_RED + "PenniWise: Why would you do that? And here I thought we'd be friends");
+                                                                                System.out.println("Do you want a ballon too, " + GameLogic.name +"?");
+                                                                                clearConsole();
+                                                                                COD.flyFlyButterfly();
+                                                                            }
+                                                                }while(!scene);
+
+                                                        }
+                                                            else if(knife == false){
+                                                                scene = true;
+                                                                System.out.println(ANSI_RED + "PenniWise: Liar");
+                                                                System.out.println("PenniWise: Beep, beep " + GameLogic.name + ANSI_RESET);
+                                                                COD.flyFlyButterfly();
+                                                            }
+                                                    }
+                                                        else if(input == 2){
+                                                            clearConsole();
+                                                            scene = true;
+                                                            System.out.println(ANSI_RED + "That's too bad." + ANSI_RESET);
+                                                            COD.flyFlyButterfly();
+                                                        }
+                                            }while(!scene);
+                                        }
+                            }while(!scene);
+                    }
+            }while(!scene);
+        }
+            else if(input == 2){
+                GameLogic.clearConsole();
+                scene = true;
+            }
+        }while(!scene);
+    }
+    public static void printSeventhAct(){
+        battery = battery - 2;
+        batteryChecker();
+        clearConsole();
+        System.out.println("You continued walking upstairs towards the 3rd floor. Again, something that's not there before is there now.");
+        System.out.println("It was pitch black when you went down but now that you're going up, you saw the College of Computer Science's faculty room light's open.");
+        do{
+            scene = false;
+            System.out.println("(1) Head towards the CCS faculty room to check it out.");
+            System.out.println("(2) Continue climbing the stairs up to the 6th floor.");
+            input = readInt("->", 2);
+                if(input == 1){
+                    scene = true;
+                    clearConsole();
+                    System.out.println("You reached for the doorknob and opened the door.");
+                    enterToContinue();
+                    clearConsole();
+                    System.out.println(ANSI_RED+" ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀               "+
+                                       "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠛⠛⠛⠛⠛⠛⠛⠿⠿⢿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠟⠋⠉⠁⠀⢀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⡀⠀⠀⠀⠙⢿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⠏⠀⠀⠀⠀⢀⣾⡁⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣆⠀⠀⠀⠈⢿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡿⠀⠀⠀⠀⠀⣾⣿⣧⡀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣷⡄⠀⠀⠘⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⡇⠀⠀⠀⠀⣼⣿⣿⣿⣷⡄⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣆⠀⠀⢿⡇⢠⠴⠋⠉⠑⣦⡀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⣴⠟⠓⠲⣄⡀⠀⠀⣿⠁⠀⠀⠀⣾⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⡄⠀⢸⡿⠁⠀⠀⡠⠂⠈⣷⠀⠀⠀⠀⠀"+
+                                       "\n ⣰⡏⢤⡀⠀⠈⠛⣦⣄⣿⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⣇⠀⢠⠎⠀⠀⢀⣿⠀⠀⠀⠀⠀"+
+                                       "\n ⣿⠁⠀⠙⢦⣄⠀⠀⠹⡟⠀⠀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⢹⣰⢿⡆⠀⢀⣾⠃⠀⠀⠀⠀⠀"+
+                                       "\n ⢻⡆⠀⠀⠀⣿⠇⠀⠀⡇⠀⢠⣿⣟⢻⡟⠛⢻⠟⢻⡿⣿⠄⠀⠀⠀⣿⣿⣻⣋⣉⣋⣠⣧⣴⣿⣦⣸⠃⢸⣿⢀⡾⠃⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠻⣆⠀⠀⢿⡀⠀⠀⡇⢀⣼⣿⣿⣿⣷⣾⣿⣿⣿⣿⣿⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠟⠉⠀⣉⣷⣿⣷⠟⠁⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠈⠳⣄⠈⢻⣶⣴⣧⣬⣁⣉⠙⠻⠿⠿⠿⢿⣿⣿⣿⣿⣿⣯⣀⠀⣹⣿⣿⡋⠁⠀⡠⠔⠊⠉⠉⠉⠉⠙⠳⣦⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠈⡿⠛⠉⣀⡀⠀⠀⠀⠉⠉⠒⠀⠀⢸⣿⣿⣿⣿⣿⠋⠁⢀⣼⣿⣿⣇⡀⠀⠀⠀⠀⠀⣴⣶⣦⡀⠀⠘⣧⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⣸⠇⢠⣾⣿⣿⡇⠀⠀⣀⣠⣤⣤⠴⢾⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⡿⠛⠉⠻⢷⣶⣦⣤⣿⣿⣿⣷⠀⠀⢸⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⣿⡄⢾⣿⣿⣿⣷⣶⣿⣿⠟⠉⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⡿⠟⠀⠀⢀⣀⣤⣽⣿⣿⣿⣿⣿⠿⠀⠀⣾⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⢹⣇⠈⠛⢿⣿⣿⣿⣿⣶⣶⣶⣦⣤⣤⣄⣀⡘⢿⣿⣿⣠⡤⢒⣢⣴⣾⣿⣿⣿⡿⢿⣯⣿⣿⡇⠀⠀⢰⡟⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⢿⡆⠀⠘⣿⣿⣟⠉⢛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣴⣾⣿⣿⠛⠛⣿⠋⠉⡇⢘⣿⡟⢸⠇⠀⠠⣿⡇⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠈⢿⣦⠀⠹⣿⠻⣦⣸⡀⡇⠀⢰⠀⠀⡆⠀⠈⢿⣿⠉⠀⢸⡇⠀⢠⣇⠀⢸⣷⣸⡿⠁⡸⠀⠀⠀⢿⡇⠀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠀⢸⣿⠀⠀⢻⠀⠙⣿⣿⣿⡀⣼⡄⢰⣷⣤⣦⣼⠿⢤⡴⠛⣷⡤⠻⡟⣦⣾⣿⣿⠃⠀⠀⣰⠇⠀⢸⣿⡀⠀⠀⠀⠀⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠀⢸⣿⠀⢠⡀⠇⠀⠘⢿⣿⣿⣿⣝⣶⣿⡄⠀⢻⠀⢠⡇⠀⣏⣀⣴⣷⣿⣿⣿⠃⠀⡄⢠⣿⣶⢶⣾⣿⣿⣿⡿⠿⣷⠀"+
+                                       "\n ⠀⠀⠀⠀⠀⠀⣼⡿⠀⢸⣿⡄⠀⠀⠈⢿⣿⣿⣿⣿⣿⣿⣷⣾⣷⣾⣿⣿⣿⣿⣿⣿⣿⡿⠃⠀⣼⣿⡾⠃⠀⣰⣿⣿⣿⡿⠃⠀⠘⡇"+
+                                       "\n ⠀⠀⠀⠀⢀⣠⣿⣿⣤⣸⣿⣷⠘⣦⠀⠀⠛⢿⣭⣍⣿⣿⣿⣿⣿⣯⣽⣿⣿⣿⣿⠿⠛⢠⣦⣴⣿⡿⠁⠀⢰⣿⣿⡟⠁⠀⠀⠀⠀⡧"+
+                                       "\n  ⠀⠀⢀⣼⠛⠁⠈⠉⠛⠿⣿⣿⣆⢹⣷⣄⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⢀⡿⠛⠉⠁⠀⢀⣴⣿⣿⣿⠁⠀⠀⠀⠀⠀⢸"+
+                                       "\n  ⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⡛⠛⠛⢷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠴⠋⠀⢀⣠⣤⣴⣿⣿⣿⡿⠃⠀⠀⠀⠀⠀⢀⣼"+
+                                       "\n  ⠀⠀⠈⢿⣆⠀⠀⠀⠀⠀⠀⢻⣿⣿⣷⡄⠀⠀⠙⠷⢤⣀⠀⠐⠛⢿⣿⣷⡿⠋⠀⠀⣀⣴⣿⣿⣿⠟⠋⠉⠁⠀⡶⢿⣶⣤⡤⠾⠛⠋"+
+                                       "\n  ⠀⠀⠀⠈⢿⡄⠀⠀⢀⣀⠀⠀⠻⢿⣿⣿⣦⣤⣀⡀⠀⠀⠉⠙⠛⢉⣡⣴⣶⣾⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⢀⡷⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n  ⠀⠀⠀⠀⠀⠙⠶⠾⠛⢻⡄⠀⠀⠀⠹⢿⣿⣿⣿⣿⣿⣿⣿⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣟⣡⣤⣄⡀⠀⣀⣤⡾⠃⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢷⣦⡀⠀⠀⠀⠉⠉⠛⢛⣛⠻⣿⣿⣿⠿⠟⠛⣫⣽⡾⠟⠋⠀⠀⠈⠙⠛⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                       "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣶⣤⣤⣴⠶⠟⠛⠛⠳⠤⣀⣀⣀⡤⠞⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+ANSI_RESET);
+                                       enterToContinue();
+                                       clearConsole();
+
+                    System.out.println(ANSI_RED +"  ▄▄▄█████▓   ▓█████     ██▓        ██▓           ███▄ ▄███▓   ▓█████       "+ 
+                                                 "\n   ▓  ██▒ ▓▒   ▓█   ▀    ▓██▒       ▓██▒          ▓██▒▀█▀ ██▒   ▓█   ▀      "+ 
+                                                 "\n   ▒ ▓██░ ▒░   ▒███      ▒██░       ▒██░          ▓██    ▓██░   ▒███         "+
+                                                 "\n   ░ ▓██▓ ░    ▒▓█  ▄    ▒██░       ▒██░          ▒██    ▒██    ▒▓█  ▄       "+
+                                                 "\n     ▒██▒ ░    ░▒████▒   ░██████▒   ░██████▒      ▒██▒   ░██▒   ░▒████▒      "+
+                                                 "\n   ▒ ░░      ░░ ▒░ ░   ░ ▒░▓  ░   ░ ▒░▓  ░      ░ ▒░   ░  ░   ░░ ▒░ ░      "+
+                                                 "\n       ░        ░ ░  ░   ░ ░ ▒  ░   ░ ░ ▒  ░      ░  ░      ░    ░ ░  ░      "+
+                                                 "\n   ░            ░        ░ ░        ░ ░         ░      ░         ░         "+
+                                                 "\n               ░  ░       ░  ░       ░  ░             ░         ░  ░      "+
+                                                 "\n                                                                           "+
+                                                 "\n                           ▄▄▄                                              "+
+                                                 "\n                           ▒████▄                                            "+
+                                                 "\n                           ▒██  ▀█▄                                          "+
+                                                 "\n                           ░██▄▄▄▄██                                         "+
+                                                 "\n                           ▓█    ▓██▒                                        "+
+                                                 "\n                           ▒▒    ▓▒█░                                        "+
+                                                 "\n                           ▒   ▒▒ ░                                        "+
+                                                 "\n                           ░   ▒                                           "+
+                                                 "\n                               ░  ░                                        "+
+                                                 "\n                                                                           "+
+                                                 "\n  █████▒█    ██  ███▄    █  ███▄    █▓██   ██▓    ▄▄▄██▀▀▀▒█████   ██ ▄█▀▓█████ "+
+                                                 "\n▓██   ▒ ██  ▓██▒ ██ ▀█   █  ██ ▀█   █ ▒██  ██▒      ▒██  ▒██▒  ██▒ ██▄█▒ ▓█   ▀ "+
+                                                 "\n▒████ ░▓██  ▒██░▓██  ▀█ ██▒▓██  ▀█ ██▒ ▒██ ██░      ░██  ▒██░  ██▒▓███▄░ ▒███   "+
+                                                 "\n░▓█▒  ░▓▓█  ░██░▓██▒  ▐▌██▒▓██▒  ▐▌██▒ ░ ▐██▓░   ▓██▄██▓ ▒██   ██░▓██ █▄ ▒▓█  ▄ "+
+                                                 "\n░▒█░   ▒▒█████▓ ▒██░   ▓██░▒██░   ▓██░ ░ ██▒▓░    ▓███▒  ░ ████▓▒░▒██▒ █▄░▒████▒"+
+                                                 "\n▒ ░   ░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒ ░ ▒░   ▒ ▒   ██▒▒▒     ▒▓▒▒░  ░ ▒░▒░▒░ ▒ ▒▒ ▓▒░░ ▒░ ░"+
+                                                 "\n░     ░░▒░ ░ ░ ░ ░░   ░ ▒░░ ░░   ░ ▒░▓██ ░▒░     ▒ ░▒░    ░ ▒ ▒░ ░ ░▒ ▒░ ░ ░  ░"+
+                                                 "\n░ ░    ░░░ ░ ░    ░   ░ ░    ░   ░ ░ ▒ ▒ ░░      ░ ░ ░  ░ ░ ░ ▒  ░ ░░ ░    ░   "+
+                                                 "\n           ░              ░          ░ ░ ░         ░   ░      ░ ░  ░  ░      ░  ░"+
+                                                 "\n                                       ░ ░                                       " + ANSI_RESET);
+                                                    enterToContinue();
+                                                    clearConsole();
+                        System.out.println("A scary clown just ordered you to tell him a funny joke. A red liquid of some kind is dripping from his mouth.");
+                    do{
+                    scene = false;
+                    System.out.println("(1) Turn around and head for the door.");
+                    System.out.println("(2) Try to think of a joke to tell the scary clown.");
+                    input = readInt("->", 2);
+                        if(input == 1){
+                            scene = true;
+                            clearConsole();
+                            System.out.println("You turned around only to see the door where you entered from is now closed.");
+                            System.out.println("You run towards the door and tried to open it but the doorknob won't budge.");
+                            COD.angCorny();
+                        }
+                            else if(input == 2){
+                                scene = true;
+                                clearConsole();
+                                if(joke == true){
+                                System.out.println("You tried thinking of a joke. \nYou suddenly remembered that " + ANSI_RED + "PenniWise " + ANSI_RESET +"gave you a piece of note with a joke written on it.");
+                                System.out.println("You reached for the piece of paper in your pocket. You read what's written.");
+                                enterToContinue();
+                                clearConsole();
+                                System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Me?");
+                                enterToContinue();
+                                clearConsole();
+                                    System.out.println(ANSI_RED + " ██░ ██     ▄▄▄          ██░ ██     ▄▄▄          ██░ ██     ▄▄▄          ▐██▌ "+ 
+                                                       "\n ▓██░ ██▒   ▒████▄       ▓██░ ██▒   ▒████▄       ▓██░ ██▒   ▒████▄        ▐██▌   "+
+                                                       "\n ▒██▀▀██░   ▒██  ▀█▄     ▒██▀▀██░   ▒██  ▀█▄     ▒██▀▀██░   ▒██  ▀█▄      ▐██▌  "+
+                                                       "\n ░▓█ ░██    ░██▄▄▄▄██    ░▓█ ░██    ░██▄▄▄▄██    ░▓█ ░██    ░██▄▄▄▄██     ▓██▒  "+
+                                                       "\n ░▓█▒░██▓    ▓█   ▓██▒   ░▓█▒░██▓    ▓█   ▓██▒   ░▓█▒░██▓    ▓█   ▓██▒    ▒▄▄     "+
+                                                       "\n  ▒ ░░▒░▒    ▒▒   ▓▒█░    ▒ ░░▒░▒    ▒▒   ▓▒█░    ▒ ░░▒░▒    ▒▒   ▓▒█░    ░▀▀▒  "+
+                                                       " \n   ▒ ░▒░ ░     ▒   ▒▒ ░    ▒ ░▒░ ░     ▒   ▒▒ ░    ▒ ░▒░ ░     ▒   ▒▒ ░    ░  ░ "+
+                                                       "\n    ░  ░░ ░     ░   ▒       ░  ░░ ░     ░   ▒       ░  ░░ ░     ░   ▒          ░ "+
+                                                       "\n    ░  ░  ░         ░  ░    ░  ░  ░         ░  ░    ░  ░  ░         ░  ░    ░    "+
+                                                       "\n                                                                                 "+
+                                                       "\n  ██░ ██     ▄▄▄          ██░ ██     ▄▄▄          ██░ ██     ▄▄▄          ▐██▌ "+
+                                                       "\n ▓██░ ██▒   ▒████▄       ▓██░ ██▒   ▒████▄       ▓██░ ██▒   ▒████▄        ▐██▌ "+
+                                                       "\n ▒██▀▀██░   ▒██  ▀█▄     ▒██▀▀██░   ▒██  ▀█▄     ▒██▀▀██░   ▒██  ▀█▄      ▐██▌ "+
+                                                       "\n ░▓█ ░██    ░██▄▄▄▄██    ░▓█ ░██    ░██▄▄▄▄██    ░▓█ ░██    ░██▄▄▄▄██     ▓██▒ "+
+                                                       "\n ░▓█▒░██▓    ▓█   ▓██▒   ░▓█▒░██▓    ▓█   ▓██▒   ░▓█▒░██▓    ▓█   ▓██▒    ▒▄▄     "+
+                                                       "\n  ▒ ░░▒░▒    ▒▒   ▓▒█░    ▒ ░░▒░▒    ▒▒   ▓▒█░    ▒ ░░▒░▒    ▒▒   ▓▒█░    ░▀▀▒  "+
+                                                       "\n ▒ ░▒░ ░     ▒   ▒▒ ░    ▒ ░▒░ ░     ▒   ▒▒ ░    ▒ ░▒░ ░     ▒   ▒▒ ░    ░  ░ "+
+                                                       "\n ░  ░░ ░     ░   ▒       ░  ░░ ░     ░   ▒       ░  ░░ ░     ░   ▒          ░ "+
+                                                       "\n ░  ░  ░         ░  ░    ░  ░  ░         ░  ░    ░  ░  ░         ░  ░    ░    "+
+                                                       "\n                                                                                 " + ANSI_RESET);
+                                    enterToContinue();
+                                    clearConsole();
+                                    System.out.println("The scary clown continued to laugh for a whole minute.");
+                                    System.out.println("The moment he stopped, he smiled at you and told you something.");
+                                    System.out.println(ANSI_RED + "\"Knock on the 3rd cubicle and ask if Hanako is there.\"" + ANSI_RESET);
+                                    System.out.println("He motioned you to go out and continued laughing.");
+                                    knowledge = true;
+                                    enterToContinue();
+                                    clearConsole();                  
+                                }
+                                    else if(joke == false){
+                                        System.out.println("You tried to think of a joke as to not upset the scary and bloody clown.");
+                                        System.out.println("You remember jokes told by your best friends, " + ANSI_Purple + "Vaughn and Takeshi." + ANSI_RESET);
+                                        do{
+                                            scene = false;
+                                            System.out.println("(1) Would you rather watch a tree grow or a knee grow?");
+                                            System.out.println("(2) I have three jokes for you... joke... joke... joke.");
+                                            input = readInt("->", 2);
+                                                if(input == 1){
+                                                    scene = true;
+                                                COD.angCorny();
+                                                }  
+                                                    else if (input == 2){
+                                                        scene = true;
+                                                        COD.angCorny();
+                                                    }
+                                        }while(!scene);
+
+                                    }
+                            }
+                    } while(!scene);
+                }
+                    else if(input == 2){
+                        scene = true;
+                        clearConsole();
+                    }
+        }while(!scene);
+    }
+    public static void printEigthAct(){
+        battery = battery - 2;
+        batteryChecker();
+        clearConsole();
+        System.out.println("You continued walking upstairs. You are back to the 4th floor again. The light on the comfort room is still on.");
+        do{
+            scene = false;
+            System.out.println("(1) Ignore the lights and continue walking upstairs.");
+            System.out.println("(2) Head towards the comfort room.");
+            input = readInt("->", 2);
+                if(input == 1){
+                    scene = true;
+                    clearConsole();
+                }
+                    else if(input == 2){
+                        scene = true; 
+                        clearConsole();
+                        System.out.println("You walked towards the comfort room.");
+                        System.out.println("As you walked past the entrance. You see that the men's comfort room is closed and door is shut tight.");
+                        System.out.println("Moving your gaze on your on your right, you saw the women's comfort room's door and light both open.");
+                        System.out.println("You entered the comfort room. You can hear a female voice humming.");
+                        enterToContinue();
+                        clearConsole();
+                        System.out.println("The tiles are clean and the faucet are all closed. There seems to be no one but you continue to hear the humming.");
+                        do{
+                            scene = false;
+                            System.out.println("(1) Go back and just continue climbing up to 6th floor.");
+                            System.out.println("(2) Check the cubicles.");
+                            input = readInt("->", 2);
+                                if(input == 1){
+                                    scene = true;
+                                    clearConsole();
+                                    System.out.println("You exited the comfort room.");
+                                    clearConsole();
+                                }
+                                    else if(input == 2){
+                                        scene = true;
+                                        if(knowledge == true){
+                                            clearConsole();
+                                            System.out.println("You first went to the nearest and first cubicle you saw.");
+                                            System.out.println("You opened it and it was empty. There was no one and nothing but the spotless toilet.");
+                                            GameLogic.enterToContinue();
+                                            GameLogic.clearConsole();
+                                            System.out.println("You opened the second cubicle. There was no one but, there was something.");
+                                            System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ":I would like to quote my good friend Jonash. \"May tae pero walang tao\"");
+                                            GameLogic.enterToContinue();
+                                            GameLogic.clearConsole();
+                                            System.out.println("For the longest since you've woke up, you finally managed to push out a smile.");
+                                            enterToContinue();
+                                            clearConsole();
+                                            System.out.println("On the third cubicle, you stopped. You remembered what the " + ANSI_RED + "clown" + ANSI_RESET + " told you."); 
+                                            System.out.println("You followed what he told you. You knocked three times, and then you asked the question.");
+                                            System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Hanako, are you there?");
+                                            enterToContinue();
+                                            clearConsole();
+                                            System.out.println("The cubicle's door opened by itself, and in front of you appeared a figure of a woman.");
+                                            enterToContinue();
+                                            clearConsole();
+                                            System.out.println(ANSI_RED +" ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣿⣆⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            "+
+                                              "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⣊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠲⣦⣭⣄⡈⢿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀           "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⢏⣴⢋⣤⢖⠀⠀⠀⠀⠀⠀⠀⡀⠐⣄⢠⡻⣿⣿⣿⢻⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀         "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⡿⢡⣾⣷⣿⣳⠇⡆⡀⣷⡀⢐⡇⣦⢳⣷⡜⣦⢻⣾⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣿⢧⣿⣼⣿⣷⣼⣿⡞⣷⣿⣿⣿⢿⣼⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿⣿⣿⣷⣼⣿⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⢹⠀⣠⣶⣶⣾⣿⠿⠛⠋⠉⠠⣄⠀⠀     "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣴⣿⣿⣿⣿⣿⣿⣿⣷⣶⣄⡀⠀⠑⠄     "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣏⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀    "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⣴⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣋⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿   "+
+                                              "\n  ⣠⣴⢶⣿⣶⣾⣿⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣧⣿⣿⣿⣿⡽⠿⢿⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠏⠟⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠙⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻   "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣟⢿⣿⣿⣷⣄⠀⠀⠀⣀⣤⣼⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⢸⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣻⣿⣿⣿⣿⣿⣿⠀   "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠙⠿⣿⣿⣷⣄⡀⠀⠀⠨⠤⠈⠻⣷⣿⣿⡟⠁⠀⠀⠀⠀⠀⠘⡟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄   "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⣤⣶⣟⢿⡉⠀⠹⣶⣤⣄⣠⣤⣾⣿⣿⢻⣿⣦⠀⠀⠀⠀⠀⢀⠇⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻⣿⡇   "+
+                                              "\n  ⢹⣿⣿⣿⣿⣿⣿⣿⡿⣿⡏⠁⠀⢹⡜⣧⠀⠀⠈⠻⠿⠿⢿⣾⣿⡿⢙⣿⣿⣷⣄⠀⠀⠀⠈⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⣿⠃    "+
+                                              "\n  ⢸⣿⣿⣿⣿⣿⣿⣿⡇⡿⠀⠀⠀⠀⢻⡸⣇⠀⠀⠀⠀⠀⠀⠀⠉⠁⠈⣿⣿⣿⣿⣷⣤⣄⣀⠀⠀⢸⡇⢹⣿⣿⣿⣿⣿⣿⡇⠀⣿⠀    "+
+                                              "\n  ⢸⣿⣿⣿⣿⣿⣿⢻⣇⠀⠀⠀⠀⠀⠈⣇⢻⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⠿⠙⠛⢟⣿⣻⣟⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠟⠀   "+
+                                              "\n  ⢸⣿⣿⣿⣿⣿⡟⡄⠛⠀⠀⠀⠀⠀⠀⣹⡜⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⣠⣿⣿⣿⣿⣦⣸⣿⡿⣿⣿⢻⣟⠀⠀⠀⠀    "+
+                                              "\n  ⢸⣿⣿⣿⣿⢿⣿⢲⣄⡀⠀⠀⠀⠀⠀⠘⣇⢿⠀⠀⠀⠀⠀⠀⠀⠠⠤⠤⠐⠒⠒⠛⠛⠉⠙⠛⠿⠿⠿⠚⣿⡇⣿⡏⢻⡃⠀⠀⠀⠀   "+
+                                              "\n  ⠸⢻⡏⣿⣿⣯⣿⣿⣿⣿⡗⠲⢤⣀⡀⠀⢿⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⣹⡇⠟⠃⠀⠀⠀⠀    "+
+                                              "\n  ⠀⠈⣿⣿⣿⣿⡿⠉⠛⢿⣅⡀⠀⣸⣿⣿⣿⣿⠷⢤⣤⣄⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣤⣤⣾⣿⣿⣿⡀⠀⠀⠀⠀⠀  "+
+                                              "\n ⠀⠀⢸⡇⠈⢹⣿⣦⣀⣿⣿⣿⣷⡟⠿⢿⣿⣏⡀⠀⢰⣿⣿⣿⡿⠉⠉⣿⣿⣿⡟⠛⠛⣿⣿⣿⣿⠉⠁⣾⡿⠿⣿⠻⠁⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⢀⣿⣶⣸⣿⣿⣿⠍⠙⠻⣿⣄⣀⠀⢸⣿⣿⣿⡟⠛⠛⣿⣷⣶⣾⡿⠿⢿⣤⣴⣾⠟⠛⠛⢻⣿⣿⡇⠀⠰⡏⠀⠀⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⢸⣿⣿⢿⠉⠛⢿⣧⣀⣈⣿⣿⣿⣿⡿⠿⢿⣿⣅⣀⣠⣿⣿⣿⣿⠀⠀⣾⣿⣿⣿⣥⣤⣤⣾⠿⠛⣷⣶⣾⣟⠀⠀⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⠘⡟⠦⣽⣀⠀⣼⣿⣿⣿⡏⠻⠿⣿⣅⣀⡀⣾⣿⣿⣿⠋⠙⢻⣿⣿⣿⣿⠁⠀⢸⣿⣿⣿⡏⠀⣀⣿⠿⠿⡏⠀⠀⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⠀⡇⠀⣗⠛⠛⡏⠻⣛⣻⠀⠀⠀⢸⣿⣿⣿⡟⠛⠻⣿⣶⣶⣾⡿⠿⠿⣿⣤⣤⣾⠟⠛⢿⣿⣿⣿⡿⠀⠀⡇⠀⠀⠀⠀⠀⠀" + ANSI_RESET); 
+                                              System.out.println(ANSI_RED + "Hanako: I am here, thank you for checking up on me...");
+                                              System.out.println("Everyone made fun of me, I... I died on this cubicle.");
+                                              System.out.println("People would barge in without asking...");
+                                              System.out.println("But you didn't... ");
+                                              enterToContinue();
+                                              clearConsole();
+                                              System.out.println("\"As thanks, I will give you this " + ANSI_RESET + ANSI_Purple + "napkin" + ANSI_RESET + "...\"");
+                                              napkin = true;
+                                              System.out.println(ANSI_RED + "\"Go...\"" + ANSI_RESET);
+                                              enterToContinue();
+                                              clearConsole();
+                                              System.out.println("You listened to Hanako and exited the comfort room.");
+                                              enterToContinue();
+                                              clearConsole();
+                                        }
+                                            else if(knowledge == false){
+                                                clearConsole();
+                                                System.out.println("You first went to the nearest and first cubicle you saw.");
+                                                System.out.println("You opened it and it was empty. There was no one and nothing but the spotless toilet.");
+                                                GameLogic.enterToContinue();
+                                                GameLogic.clearConsole();
+                                                System.out.println("You opened the second cubicle. There was no one but, there was something.");
+                                                System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ":I would like to quote my friend Jonash. \"May tae pero walang tao\"");
+                                                GameLogic.enterToContinue();
+                                                GameLogic.clearConsole();
+                                                System.out.println("For the longest since you've woke up, you finally managed to push out a smile.");
+                                                System.out.println("With a smile on your face, you slowly pushed the door of the third cubicle.");
+                                                GameLogic.enterToContinue();
+                                                GameLogic.clearConsole();
+                                                COD.oopsHanako();
+                                            }
+                                    }
+                        }while(!scene);
+
+                    }
+        }while(!scene);
+    }
+    public static void printNinthAct(){
+        battery = battery - 2;
+        batteryChecker();
+        System.out.println("You finally arrived at the 5th floor.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": One more floor...");
+        System.out.println("You whispered to yourself.");
+        System.out.println("As you walk by the 5th floor, you noticed another light that is on the comfort room on this floor..");
+        do{
+            scene = false;
+            System.out.println("(1) Head towards the comfort room.");
+            System.out.println("(2) Ignore the lights and continue walking upstairs.");
+            input = readInt("->", 2);
+                if(input == 1){
+                    scene = true; 
+                    clearConsole();
+                    System.out.println("You walked towards the comfort room. The women's comfort room is closed and it's the men's that is open.");
+                    do{
+                        scene = false;
+                        System.out.println("(1) Head back to the stairs and continue going to 6th floor.");
+                        System.out.println("(2) Enter men's comfort room.");
+                        input = readInt("->", 2);
+                            if(input == 1){
+                                scene = true;
+                                clearConsole();
+                            }
+                                else if(input == 2){
+                                    scene = true;
+                                    clearConsole();
+                                    System.out.println("As you entered the comfort room, the first thing you noticed is how much it stinks.");
+                                    System.out.println("You covered your nose with your hand. You walked further inside and saw that it's very unclean inside.");
+                                    System.out.println("Then you notice the mirror, on it there is a writing written in blood...");
+                                    System.out.println(ANSI_RED + "                                    ██ ▄█▀    ██▓    ██▓        ██▓                                       "+ 
+                                                       "\n                                    ██▄█▒    ▓██▒   ▓██▒       ▓██▒                                 "+
+                                                       "\n                                    ▓███▄░    ▒██▒   ▒██░       ▒██░                                 "+
+                                                       "\n                                    ▓██ █▄    ░██░   ▒██░       ▒██░                                 "+
+                                                       "\n                                     ▒██▒ █▄   ░██░   ░██████▒   ░██████▒                             "+
+                                                       "\n                                     ▒ ▒▒ ▓▒   ░▓     ░ ▒░▓  ░   ░ ▒░▓  ░                             "+
+                                                       "\n                                     ░ ░▒ ▒░    ▒ ░   ░ ░ ▒  ░   ░ ░ ▒  ░                             "+
+                                                       "\n                                     ░ ░░ ░     ▒ ░     ░ ░        ░ ░                                "+
+                                                       "\n                                     ░  ░       ░         ░  ░       ░  ░                             "+
+                                                       "\n                                                                                                     "+
+                                                       "\n             ▓██   ██▓    ▒█████      █    ██     ██▀███       ██████    ▓█████     ██▓         █████▒"+
+                                                       "\n              ▒██  ██▒   ▒██▒  ██▒    ██  ▓██▒   ▓██ ▒ ██▒   ▒██    ▒    ▓█   ▀    ▓██▒       ▓██   ▒ "+
+                                                       "\n               ▒██ ██░   ▒██░  ██▒   ▓██  ▒██░   ▓██ ░▄█ ▒   ░ ▓██▄      ▒███      ▒██░       ▒████ ░ "+
+                                                       "\n               ░ ▐██▓░   ▒██   ██░   ▓▓█  ░██░   ▒██▀▀█▄       ▒   ██▒   ▒▓█  ▄    ▒██░       ░▓█▒  ░ "+
+                                                       "\n               ░ ██▒▓░   ░ ████▓▒░   ▒▒█████▓    ░██▓ ▒██▒   ▒██████▒▒   ░▒████▒   ░██████▒   ░▒█░    "+
+                                                       "\n               ██▒▒▒    ░ ▒░▒░▒░    ░▒▓▒ ▒ ▒    ░ ▒▓ ░▒▓░   ▒ ▒▓▒ ▒ ░   ░░ ▒░ ░   ░ ▒░▓  ░    ▒ ░    "+
+                                                       "\n             ▓██ ░▒░      ░ ▒ ▒░    ░░▒░ ░ ░      ░▒ ░ ▒░   ░ ░▒  ░ ░    ░ ░  ░   ░ ░ ▒  ░    ░      "+
+                                                       "\n             ▒ ▒ ░░     ░ ░ ░ ▒      ░░░ ░ ░      ░░   ░    ░  ░  ░        ░        ░ ░       ░ ░    "+
+                                                       "\n             ░ ░            ░ ░        ░           ░              ░        ░  ░       ░  ░           "+
+                                                       "\n             ░ ░                                                                                     "+ ANSI_RESET);
+                                    enterToContinue();
+                                    clearConsole();
+                                    System.out.println("Strange enough, you feel compelled to follow what's written on the mirror...");
+                                    System.out.println("You tried to fight back the thoughts. You used water to try and remove the writing and even a piece of your clothing.");
+                                    System.out.println("But it won't come off.");
+                                    enterToContinue();
+                                    if(napkin == true){
+                                        scene = true;
+                                        clearConsole();
+                                        System.out.println("Something fell from your pocket.");
+                                        System.out.println("It's the pristine white napkin given to you by " + ANSI_RED + "Hanako" + ANSI_RESET + ".");
+                                        System.out.println("You picked it up and started using it to remove the writing on the mirror.");
+                                        enterToContinue();
+                                        clearConsole();
+                                        System.out.println("For some reason, it worked.");
+                                        System.out.println("The bloody writing on the mirror was wiped clean.");
+                                        System.out.println("Yet the napkin is still spotless white.");
+                                        napkinw = true;
+                                        System.out.println("You hurriedly exited the men's comfort room.");
+                                        enterToContinue();
+                                        clearConsole();
+                                    }
+                                        else if(napkin == false){
+                                            scene = true;
+                                            clearConsole();
+                                            COD.demonKill();
+                                        }
+                                }
+                    }while(!scene);
+                }
+                    else if(input == 2){
+                        scene = true;
+                        clearConsole();
+                    }
+        }while(!scene);
+
+    }
+    public static void printTenthAct(){
+        battery = battery - 3;
+        batteryChecker();
+        clearConsole();
+        System.out.println("You finally arrived on the 6th floor. ");
+        System.out.println("You started running towards the janitor's room.");
+        System.out.println("You reached for the doorknob and turned it. For some reason, it is open.");
+        enterToContinue();
+        clearConsole();
+            System.out.println(ANSI_RED +"                       ▓▓██████████████  ██████                       "+  
+                               "\n                     ████████████▓▓▓▓▓▓▓▓▓▓████▓▓██████▓▓           "+      
+                               "\n                 ████████████████████████████████████████████          "+   
+                               "\n             ████████████████████████████████████████████████          "+ 
+                               "\n             ████████████████████▓▓██████████████████████████          "+ 
+                               "\n             ▓▓████▓▓██████████████▓▓██▓▓██▓▓██▓▓████▓▓▓▓▓▓▓▓▓▓▓▓        "+ 
+                               "\n             ██████████████    ██      ████        ██████████████        "+ 
+                               "\n         ████████████                ██              ████████████      "+ 
+                               "\n         ██████████                                    ██████████      "+ 
+                               "\n         ██████████                                        ██████████    "+ 
+                               "\n         ██████████  ████████                    ████████  ██████████    "+ 
+                               "\n         ████████  ██        ████            ████        ▓▓  ████████    "+ 
+                               "\n     ██████████                ████    ████                ██████████  "+ 
+                               "\n     ██▓▓▓▓████    ██████████      ████      ██████████    ██████████  "+ 
+                               "\n     ▓▓████████  ██████▒▒▒▒████            ████▒▒▒▒██████  ██████████  "+ 
+                               "\n     ████████████  ████▒▒████▒▒██            ██▒▒████▒▒████  ████████████"+ 
+                               "\n     ██████████▒▒▒▒  ████▒▒▒▒████  ██    ██  ████▒▒▒▒████  ▒▒▒▒██████████"+ 
+                               "\n     ████▓▓██▓▓    ▒▒  ▓▓▓▓██▓▓  ░░▓▓    ▓▓    ▓▓▓▓▓▓██  ▒▒    ▓▓▓▓▓▓████"+ 
+                               "\n     ████▓▓██▒▒▒▒    ▒▒            ▓▓    ██            ▒▒    ▒▒▒▒██████▓▓"+ 
+                               "\n     ████████    ▒▒  ▒▒            ██    ██            ▒▒  ▒▒    ████████"+ 
+                               "\n     ██████▒▒▒▒  ▒▒  ▒▒          ██    ██          ▒▒  ▒▒  ▒▒▒▒████████"+ 
+                               "\n     ████████▒▒▒▒  ▒▒  ▒▒          ██    ██          ▒▒  ▒▒  ▒▒▒▒████████"+ 
+                               "\n     ████████  ▒▒    ▒▒        ██        ██        ▒▒    ▒▒  ████████  "+ 
+                               "\n     ████████████  ▒▒          ██        ██          ▒▒  ████████████  "+ 
+                               "\n     ██████████████    ▒▒▒▒  ██            ██  ▒▒▒▒    ██████▓▓██████  "+ 
+                               "\n     ██████████████      ▒▒▒▒▒▒████████████▒▒▒▒▒▒      ██████████████  "+ 
+                               "\n         ██▓▓██████████      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒      ██████████████    "+ 
+                               "\n         ████▓▓████████      ██                ██      ██████████████    "+ 
+                               "\n         ██  ████  ██      ██                ██      ██  ████  ██      "+ 
+                               "\n                     ██    ██                ██    ██                  "+ 
+                               "\n                     ██    ██                ██    ██                  "+ 
+                               "\n                         ██  ██                ▓▓  ██                    "+ 
+                               "\n                        ████                ████                      "+ 
+                               "\n                             ██            ██                          "+ 
+                               "\n                                 ██▓▓▓▓▓▓▓▓▓▓                            ");
+                            System.out.println("                  \"I WANT TO PLAY A GAME\"" + ANSI_RESET);
+                            do{
+                            scene = false;
+                            System.out.println("(1) Turn around and run for the door.");
+                            System.out.println("(2) Play a game.");
+                            input = readInt("->", 2);
+                                if(input == 1){
+                                    scene = false;
+                                    clearConsole();
+                                    System.out.println("You run for the door only to find it shut tight.");
+                                    System.out.println("The scary figure spoke to you again");
+                                    System.out.println(ANSI_RED + "\"I WANT TO PLAY A GAME\"" + ANSI_RESET);
+                                    
+                                }
+                                    else if(input == 2){
+                                        scene = true;
+                                        clearConsole();
+                                        System.out.println("You have no choice but to agree.");
+                                        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET +": L-let's play a game.");
+                                        enterToContinue();
+                                        clearConsole();
+                                        System.out.println(ANSI_RED +"\"BRING ME SOMETHING CLEAN AND WIHTE\""+ ANSI_RESET);
+                                        System.out.println("You looked for something clean and white in the room.");
+                                        System.out.println("There is none.");
+                                        enterToContinue();
+                                        clearConsole();
+                                        System.out.println("You tried to leave the room to look for something clean and white elsewhere.");
+                                        enterToContinue();
+                                        clearConsole();
+                                        System.out.println(ANSI_RED + "\"NOT ALLOWED!\"" + ANSI_RESET);
+                                        enterToContinue();
+                                        clearConsole();
+                                        System.out.println("Desperation kicks in. You don't know what will happen to you if you don't manage to bring something clean and white.");
+                                        System.out.println("You tried harder to inspect the whole room. There is still nothing.");
+                                        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Something clean and white...");
+                                        enterToContinue();
+                                        clearConsole();
+                                        if (napkin == true){
+                                            System.out.println("You then remembered that you still have the napkin given to you by " + ANSI_RED + "Hanako." + ANSI_RESET);
+                                            System.out.println("You took it from your pocket and gave it to the scary figure inside the room.");
+                                            enterToContinue();
+                                            clearConsole();
+                                            System.out.println(ANSI_RED + "\"DID I MENTION THAT IT SHOULD TURN RED?\"" + ANSI_RESET);
+                                            enterToContinue();
+                                                if(napkinw == true){
+                                                    clearConsole();
+                                                    System.out.println("And to your surprise, the clean and white napkin suddenly turned red. \nIt seems as if that the blood that you wiped earlier has been finally absorbed by it.");
+                                                    enterToContinue();
+                                                    clearConsole();
+                                                    System.out.println(ANSI_RED + "\"OH. FINE. YOU WIN.\"" + ANSI_RESET);
+                                                    enterToContinue();
+                                                    clearConsole();
+                                                    System.out.println("The scary figure handed you keys and a sock.");
+                                                    key = true;
+                                                    sock = true;
+                                                    System.out.println("You hurried towards the door and exited the janitor's room.");
+                                                }
+                                                    else if(napkinw == false){
+                                                        clearConsole();
+                                                        System.out.println("Horror filled your face as you felt you got cheated");
+                                                        enterToContinue();
+                                                        clearConsole();
+                                                        System.out.println(ANSI_RED + "\"YOU LOST!\"" + ANSI_RESET);
+                                                        enterToContinue();
+                                                        clearConsole();
+                                                        COD.getJigsawed();
+                                                    }
+
+                                        }
+                                            else if(napkin == false){
+                                                System.out.println("You fell down to your knees in despair as there is nothing...");
+                                                enterToContinue();
+                                                clearConsole();
+                                                System.out.println(ANSI_RED + "\"TIME IS UP!\"");
+                                                System.out.println("\"SAY HELLO TO HELL\""+ ANSI_RESET);
+                                                enterToContinue();
+                                                clearConsole();
+                                                COD.getJigsawed();
+
+                                            }
+
+                                    }
+                            }while(!scene);
+
+    }
+    public static void printEleventhAct(){
+        battery = battery - 2;
+        batteryChecker();
+        System.out.println("You finally got the keys. But what is the sock for?");
+        System.out.println("You shrugged it off. You walked to the stairs only to find it blocked.");
+        enterToContinue();
+        clearConsole();
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET +": Are you kidding me?! After all I've went through?!?!");
+        System.out.println("You shouted. After some time, you cooled yourself off and started walking to the corridor when you saw the elvator.");
+        System.out.println("As you approached the elevator, you saw a figure walking slowly towards your direction.");
+        enterToContinue();
+        clearConsole();
+        System.out.println(ANSI_RED +" ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⡿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣇⣾⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣯⣽⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣭⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⢻⣿⣿⣿⣿⣿⣿⣿⣟⣿⣿⣿⡿⢿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡟⢩⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⢷⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠘⢿⣶⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣡⣿⣿⣿⣿⣿⣿⣿⣦⠿⡽⣿⣿⠀⠀⠀⣿⣿⣦⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣹⣿⢿⣿⣿⡟⣷⡗⠓⣺⣾⣿⡏⠀⠀⠀⢻⣿⢏⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠏⠘⣻⠧⣧⠃⢧⡾⣽⣿⡟⣃⠀⠀⠀⠀⡇⣾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡎⣹⡏⠀⢠⣿⢿⣿⣷⣮⣾⣿⣿⣿⣿⣶⣦⣀⢀⣽⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⣷⣿⠃⢀⣾⣯⣷⡟⣷⢻⡖⠋⣁⣿⣿⡿⢿⣿⣾⡄⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢉⡇⠀⢸⣿⣿⡗⡻⣦⡧⢷⣿⣿⡿⣯⣏⠀⠉⢿⣧⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠃⠀⣸⡟⠛⠳⣾⠟⠍⣿⣿⠁⢘⣿⣿⡄⠀⠀⣸⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣗⠀⢀⣿⡇⣾⢒⣿⣄⡀⣟⣽⣷⣼⣿⢻⡇⠀⠀⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⠗⣧⠀⢸⣿⣀⡿⡿⣼⣵⣿⣌⠗⣌⣿⣾⣯⣧⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⠀⢸⢩⣿⣟⠘⣿⣷⣟⢿⣦⣍⢿⣧⣿⣿⣆⠀⠉⠻⣿⡿⣿⣿⣿⣿⣿⣿⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡈⠀⣸⢽⢟⣿⢻⣿⡏⠻⣾⣿⣿⠀⠙⢿⣿⣿⠀⠀⠀⠀⠙⠻⣛⢿⣿⣿⣿⣿⣿⣷⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠟⠋⢀⣿⡌⣿⣿⣿⣿⣿⢶⣽⡜⢮⣣⢀⣼⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠙⡻⢿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡧⠀⠀⣶⡆⣸⣿⣿⣿⣿⣿⣿⣷⣾⣻⣽⡒⢿⣿⡿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⢝⣿⣿⣿⣿⣿⣿⣶⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⠀⠀⠈⠀⣿⣿⣿⣾⣿⣿⣿⣿⣿⣽⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⣠⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠫⣻⢿⣿⣿⣿⣷⣤⡀⠀⠀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⠀⢈⣩⡾⠿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀ "+
+                           "\n ⠀⠀⠀⢀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣶⣖⣶⣿⣿⣿⣿⣿⡟⠛⠛⠛⠋⠉⠛⢛⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣧⣄⠀⠀⠀ "+
+                           "\n ⠀⠶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⡤⣤⣶⣶⣾⣿⣿⣿⣇⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⣀⣀⣽⣿⣿⣻⡿⡿⢷⣦⡀ "+
+                           "\n  ⠉⠉⠉⠛⠛⠛⠛⠛⠛⠛⠻⠏⠉⠉⠉⠉⠉⠉⠉⠉⠙⠁⠀⠀⠀⠈⠻⣿⣿⣿⣿⡿⠛⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠛⠛⠛⠛⠉⠉⠁" + ANSI_RESET);
+        enterToContinue();
+        clearConsole();
+        System.out.println("You don't know what or who that is but your body and mind are telling you that if you don't get away, you're dead.");
+        System.out.println("You repeatedly hit the elevator buttons.");
+        enterToContinue();
+        clearConsole();
+        System.out.println("The figure gets closer...");
+        enterToContinue();
+        clearConsole();
+        System.out.println("The figure is just a few feet towards you.");
+        enterToContinue();
+        clearConsole();
+        System.out.println("Suddenly, the elevator doors opened. You ran inside. \nYou kept hitting the buttons repeatedly to close the elevator doors.");
+        enterToContinue();
+        clearConsole();
+        System.out.println("The deadly figure is getting very close...");
+        enterToContinue();
+        clearConsole();
+        System.out.println("The elevator doors finally closed. You let out a big sigh of relief. \nThat is until you notice who's beside you inside the elevator.");
+        enterToContinue();
+        clearConsole();
+        COD.getDobbied();
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ": Please take me to the ground floor!");
+        System.out.println("You pleaded the green and small figure besides you. He pressed the button that you pressed earlier.");
+        enterToContinue();
+        clearConsole();
+        System.out.println("Suddenly, the elevator went down faster. Within a few seconds, the elevator door door opened and you are already on the 1st floor.");
+        System.out.println(ANSI_Green + "Dobbi: Take care!" + ANSI_RESET);
+        System.out.println("You nodded to the small and green figure. You ran towards the second exit.");
+        enterToContinue();
+        clearConsole();
+        System.out.println("You used the key to unlock the door.");
+        enterToContinue();
+        clearConsole();
+        System.out.println("It opened.");
+        System.out.println("You ran outside.");
+        System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET +": Finally... freedom.");
+        enterToContinue();
+        clearConsole();
+        gameVictory();
+    }
+}
+public class COD extends Story {
+
+    
+
+    public static void oopsHanako(){
+        System.out.println(ANSI_RED +" ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣿⣆⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀            "+
+                                              "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⣊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠲⣦⣭⣄⡈⢿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀           "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⢏⣴⢋⣤⢖⠀⠀⠀⠀⠀⠀⠀⡀⠐⣄⢠⡻⣿⣿⣿⢻⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀         "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⡿⢡⣾⣷⣿⣳⠇⡆⡀⣷⡀⢐⡇⣦⢳⣷⡜⣦⢻⣾⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣿⢧⣿⣼⣿⣷⣼⣿⡞⣷⣿⣿⣿⢿⣼⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿⣿⣿⣷⣼⣿⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⢹⠀⣠⣶⣶⣾⣿⠿⠛⠋⠉⠠⣄⠀⠀     "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣴⣿⣿⣿⣿⣿⣿⣿⣷⣶⣄⡀⠀⠑⠄     "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣏⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀    "+
+                                              "\n  ⠀⠀⠀⠀⠀⠀⣴⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣋⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿   "+
+                                              "\n  ⣠⣴⢶⣿⣶⣾⣿⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣧⣿⣿⣿⣿⡽⠿⢿⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠏⠟⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠙⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻   "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣟⢿⣿⣿⣷⣄⠀⠀⠀⣀⣤⣼⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⢸⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣻⣿⣿⣿⣿⣿⣿⠀   "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠙⠿⣿⣿⣷⣄⡀⠀⠀⠨⠤⠈⠻⣷⣿⣿⡟⠁⠀⠀⠀⠀⠀⠘⡟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄   "+
+                                              "\n  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⣤⣶⣟⢿⡉⠀⠹⣶⣤⣄⣠⣤⣾⣿⣿⢻⣿⣦⠀⠀⠀⠀⠀⢀⠇⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻⣿⡇   "+
+                                              "\n  ⢹⣿⣿⣿⣿⣿⣿⣿⡿⣿⡏⠁⠀⢹⡜⣧⠀⠀⠈⠻⠿⠿⢿⣾⣿⡿⢙⣿⣿⣷⣄⠀⠀⠀⠈⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⣿⠃    "+
+                                              "\n  ⢸⣿⣿⣿⣿⣿⣿⣿⡇⡿⠀⠀⠀⠀⢻⡸⣇⠀⠀⠀⠀⠀⠀⠀⠉⠁⠈⣿⣿⣿⣿⣷⣤⣄⣀⠀⠀⢸⡇⢹⣿⣿⣿⣿⣿⣿⡇⠀⣿⠀    "+
+                                              "\n  ⢸⣿⣿⣿⣿⣿⣿⢻⣇⠀⠀⠀⠀⠀⠈⣇⢻⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⠿⠙⠛⢟⣿⣻⣟⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠟⠀   "+
+                                              "\n  ⢸⣿⣿⣿⣿⣿⡟⡄⠛⠀⠀⠀⠀⠀⠀⣹⡜⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⣠⣿⣿⣿⣿⣦⣸⣿⡿⣿⣿⢻⣟⠀⠀⠀⠀    "+
+                                              "\n  ⢸⣿⣿⣿⣿⢿⣿⢲⣄⡀⠀⠀⠀⠀⠀⠘⣇⢿⠀⠀⠀⠀⠀⠀⠀⠠⠤⠤⠐⠒⠒⠛⠛⠉⠙⠛⠿⠿⠿⠚⣿⡇⣿⡏⢻⡃⠀⠀⠀⠀   "+
+                                              "\n  ⠸⢻⡏⣿⣿⣯⣿⣿⣿⣿⡗⠲⢤⣀⡀⠀⢿⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⣹⡇⠟⠃⠀⠀⠀⠀    "+
+                                              "\n  ⠀⠈⣿⣿⣿⣿⡿⠉⠛⢿⣅⡀⠀⣸⣿⣿⣿⣿⠷⢤⣤⣄⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣤⣤⣾⣿⣿⣿⡀⠀⠀⠀⠀⠀  "+
+                                              "\n ⠀⠀⢸⡇⠈⢹⣿⣦⣀⣿⣿⣿⣷⡟⠿⢿⣿⣏⡀⠀⢰⣿⣿⣿⡿⠉⠉⣿⣿⣿⡟⠛⠛⣿⣿⣿⣿⠉⠁⣾⡿⠿⣿⠻⠁⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⢀⣿⣶⣸⣿⣿⣿⠍⠙⠻⣿⣄⣀⠀⢸⣿⣿⣿⡟⠛⠛⣿⣷⣶⣾⡿⠿⢿⣤⣴⣾⠟⠛⠛⢻⣿⣿⡇⠀⠰⡏⠀⠀⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⢸⣿⣿⢿⠉⠛⢿⣧⣀⣈⣿⣿⣿⣿⡿⠿⢿⣿⣅⣀⣠⣿⣿⣿⣿⠀⠀⣾⣿⣿⣿⣥⣤⣤⣾⠿⠛⣷⣶⣾⣟⠀⠀⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⠘⡟⠦⣽⣀⠀⣼⣿⣿⣿⡏⠻⠿⣿⣅⣀⡀⣾⣿⣿⣿⠋⠙⢻⣿⣿⣿⣿⠁⠀⢸⣿⣿⣿⡏⠀⣀⣿⠿⠿⡏⠀⠀⠀⠀⠀⠀⠀"+
+                                              "\n  ⠀⠀⠀⡇⠀⣗⠛⠛⡏⠻⣛⣻⠀⠀⠀⢸⣿⣿⣿⡟⠛⠻⣿⣶⣶⣾⡿⠿⠿⣿⣤⣤⣾⠟⠛⢿⣿⣿⣿⡿⠀⠀⡇⠀⠀⠀⠀⠀⠀" + ANSI_RESET);                             
+                    
+                                              System.out.println(ANSI_RED +"              ▓█████▄  ██▓▓  █████    "+
+                                                                           "\n             ▒██▀ ██▌  ▓██▒  ▓█   ▀  "+
+                                                                           "\n             ░██   █▌  ▒██▒  ▒███     "+
+                                                                           "\n             ░▓█▄   ▌  ░██░  ▒▓█  ▄  "+
+                                                                           "\n             ░▒████▓   ░██░  ░▒████▒  "+
+                                                                           "\n             ▒▒▓  ▒ ░  ▓  ░  ░ ▒░ ░   "+
+                                                                           "\n             ░ ▒  ▒    ▒ ░   ░ ░  ░   "+
+                                                                           "\n             ░ ░  ░    ▒ ░     ░      "+
+                                                                           "\n             ░     ░     ░   ░ "+
+                                                                           "\n             ░                    " + ANSI_RESET);
+                                              scene = true;
+                                              hanako = true;
+                                              GameLogic.enterToContinue();
+                                              GameLogic.gameOver();
+    }
+
+    public static void getDobbied(){
+        System.out.println(ANSI_Green +"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⠤⠤⠤⢤⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀        "+
+                                   "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡤⠒⠋⠁⠀⠀⠀⠀⠀⠰⠆⠀⠈⠉⠑⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀  "+
+                                   "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡴⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡍⠳⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     "+
+                                   "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡾⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⣀⣀⠤⣿⠓⠒⢺⡷⠤⣀⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀   "+
+                                   "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡤⢿⡏⠁⠀⠀⠛⠀⠀⠈⠁⠀⠀⣿⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀   "+
+                                   "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⠁⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣷⠀⠀⠀⠀⠀⠀⠀⠀    "+
+                                   "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡇⠀⠀⠀⠀⠀⠀⢠⣄⣴⠋⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀    "+
+                                   "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠃⠀⠀⠀⠀⠀⠀⠀⣻⣧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀    "+
+                                   "\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠃⠀⠀⠀⢠⡀⢀⡼⠃⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀   "+
+                                   "\n ⠀⠀⠀⢀⡴⠒⠒⢤⡀⠀⢹⡆⢠⣤⣀⡼⣿⠇⠀⠀⠀⠀⢢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⣀⠤⣀⠀⠀  "+
+                                   "\n⠀⠀⠀⡞⢠⣶⢄⡀⠙⢦⣾⣿⣮⠿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠳⣄⠀⠀⠀⢀⠔⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣤⠖⠋⣠⠤⡈⢆⠀  "+
+                                   "\n⠀⠀⠀⣧⢸⠁⣀⠽⢦⣼⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣧⠀⢠⠎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⠀⡠⠊⠹⠄⢡⢸⠀  "+
+                                   "\n⠀⠀⠀⠈⢻⡀⡇⠀⡞⠛⣿⣧⣬⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣆⢸⣦⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⡟⢳⠀⢠⠂⣸⣸⠀  "+
+                                   "\n⠀⠀⠀⠀⠀⣗⡇⠀⢳⠀⠘⣿⣿⡗⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣼⠏⠀⠀⠀⠀⠀⠀⢀⣀⡴⠶⣿⣿⡇⢸⠀⢸⢀⠟⠁⠀  "+
+                                   "\n⠀⠀⠀⢀⡀⠹⣷⣄⡏⠀⡞⢹⠋⢧⠀⠀⠹⣷⣄⠁⠠⠄⠀⢀⠀⠀⣼⠏⠀⠀⠀⠀⣠⣶⠶⠟⠁⠀⣸⣿⣿⠁⡼⢀⣾⠏⠀⠀⠀  "+
+                                   "\n⠀⡴⠋⠁⠈⠉⠛⢮⡙⢦⣙⣾⠀⠘⢷⣄⡀⠀⠈⠛⢤⡀⠀⠒⠀⢸⠟⠀⢀⣠⣴⣾⠛⠁⠀⠀⣀⡴⠋⠀⣧⠞⣡⣺⠿⠒⠦⣄⠀  "+
+                                   "\n⢸⠁⠀⠁⠀⠖⠀⠀⠙⠲⢬⠙⣄⠀⠀⠻⣿⢶⣤⣤⣤⣿⣦⡤⠶⠛⢻⣿⠿⠻⠿⢿⡿⠿⠿⣿⠏⠁⢀⣴⣉⡤⠞⠁⠀⠀⠀⠈⠂  "+
+                                   "\n⢸⠀⠀⠀⠀⠀⠀⠀⠀⢄⠈⢇⡈⠙⣶⣦⣄⣉⠉⠀⠴⠾⢧⡉⠂⠀⠖⠁⣴⠾⠗⠀⠉⠀⣤⣴⣶⠞⣹⠟⠁⠀⠀⠐⠀⠘⠀⢀⠄  "+
+                                   "\n⢸⡄⠀⠀⠀⠀⠀⠀⠀⠀⠱⣄⠈⢉⡹⣿⣷⣍⠁⠒⠒⠀⡤⠿⠄⠀⠀⡸⢧⡴⠒⠉⠁⣠⡞⡽⠛⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⡼⠀ "+
+                                   "\n⠘⡆⠀⠀⠀⠀⠄⠀⠀⠀⠀⠈⢦⣆⡱⣿⣽⣿⣷⡦⣄⡀⠣⣄⢀⠀⠀⣠⠴⠃⢀⣴⣿⣋⣿⣧⠀⠀⠀⠀⠀⢀⡴⠀⠀⠀⢰⠃⠀ "+
+                                   "\n⠀⢸⡄⠀⠀⠘⢮⣆⠀⠀⠀⠀⠀⠙⠿⣶⣿⣏⢻⣧⣇⡏⢳⣮⣿⣧⣞⣁⡤⠖⣻⡿⢩⣯⠍⠁⠀⠀⠀⠀⣰⡿⠁⠀⠀⢀⡎⠀⠀ "+
+                                   "\n⠀⠀⣇⠀⠀⠀⠀⠻⣆⠀⠀⠀⠀⠀⠀⠈⠛⢿⣷⡙⢿⣷⣼⣠⠁⠘⠈⢉⣠⣿⡏⣰⡿⠃⠀⠀⠀⠀⠀⢰⠋⠀⠀⠀⠀⡼⠀⠀⠀ "+
+                                   "\n⠀⠀⠸⡆⠀⠀⠀⠀⠹⡄⠀⠀⠀⠀⠀⠘⢦⡀⠙⢿⣆⠙⢧⣸⠀⡟⢸⣯⣿⣿⡷⠋⠀⠀⠀⠀⠀⠀⠀⣾⠀⠀⠀⠀⢰⠇⠀⠀⠀ "+
+                                   "\n⠀⠀⠃⠀⠀⠀⠀⠀⢱⠀⠀⠀⠀⠀⠀⠀⠱⣄⠀⠈⢧⠀⠙⣷⠷⠞⠋⠁⣿⠁⠀⠀⠀⠀⠀⠀⠀⢰⠇⠀⠀⠀⠀⣼⠀⠀⠀⠀ "+
+                                   "\n⢠⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠙⡁⠀⠉⢇⠀⠈⠒⡀⠀⣸⣿⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⡿⠀⠀⠀⠀ "+
+                                   "\n⢸⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣕⠘⠧⣤⣴⠷⠾⠟⣿⠄⠀⠀⠀⠀⠀⠀⢰⠓⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀ "+
+                                   "\n⢸⠀⠀⠀⠀⠀⠀⢹⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢘⣿⠀⠀⠀⠀⠀⠀⠀⣼⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀ "+
+                                   "\n⠘⠀⠀⠀⠀⠀⠀⠈⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⢠⡟⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀ "+
+                                   "\n⠀⠀⠃⠀⠀⠀⠀⠀⠀⢿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⠀⠀⣼⠃⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀" + ANSI_RESET);
+                                   GameLogic.enterToContinue();
+                                   if(sock == false){
+                                   System.out.println(ANSI_Green +"You have no sock for Dobbi.");
+                                   System.out.println("You're no Dobbi's master.");
+                                   System.out.println("Dobbi has no master." + ANSI_RESET);
+                                   System.out.println(ANSI_RED + GameLogic.name + ANSI_RESET + ANSI_Green + " has no shortcut." + ANSI_RESET);
+                                   dobbi = true;
+                                   scene = true;
+                                   GameLogic.enterToContinue();
+                                   GameLogic.clearConsole();
+                                   GameLogic.gameOver();
+                                   }
+                                    else if(sock == true){
+                                        GameLogic.clearConsole();
+                                        System.out.println(ANSI_Green +"You have sock for Dobbi!");
+                                        System.out.println("Dobbi will take you wherever you want!" + ANSI_RESET);
+                                        scene = true;
+                                        GameLogic.enterToContinue();
+                                        GameLogic.clearConsole();
+                                    }
+    }
+    public static void flyFlyButterfly(){
+        enterToContinue();
+        clearConsole();
+        System.out.println(ANSI_RED + "     ▄▄▄█████▓    ██▓    ███▄ ▄███▓   ▓█████                        "+ 
+                                      "\n      ▓  ██▒ ▓▒   ▓██▒   ▓██▒▀█▀ ██▒   ▓█   ▀                        "+
+                                      "\n      ▒ ▓██░ ▒░   ▒██▒   ▓██    ▓██░   ▒███                 "+
+                                      "\n      ░ ▓██▓ ░    ░██░   ▒██    ▒██    ▒▓█  ▄               "+
+                                      "\n        ▒██▒ ░    ░██░   ▒██▒   ░██▒   ░▒████▒             "+
+                                      "\n          ▒ ░░      ░▓     ░ ▒░   ░  ░   ░░ ▒░ ░             "+
+                                      "\n          ░        ▒ ░   ░  ░      ░    ░ ░  ░             "+
+                                      "\n          ░          ▒ ░   ░      ░         ░                "+
+                                      "\n                      ░            ░         ░  ░             "+
+                                      "\n                                                              "+
+                                      "\n               ▄▄▄█████▓    ▒█████                            "+
+                                      "\n               ▓  ██▒ ▓▒   ▒██▒  ██▒                          "+
+                                      "\n               ▒ ▓██░ ▒░   ▒██░  ██▒                          "+
+                                      "\n               ░ ▓██▓ ░    ▒██   ██░                          "+
+                                      "\n                 ▒██▒ ░    ░ ████▓▒░                          "+
+                                      "\n              ▒ ░░      ░ ▒░▒░▒░                           "+
+                                      "\n                  ░         ░ ▒ ▒░                           "+
+                                      "\n              ░         ░ ░ ░ ▒                            "+   
+                                      "\n                              ░ ░                            "+
+                                      "\n                                                               "+
+                                      "\n        █████▒    ██▓        ▒█████      ▄▄▄         ▄▄▄█████▓  "+
+                                      "\n       ▓██   ▒    ▓██▒       ▒██▒  ██▒   ▒████▄       ▓  ██▒ ▓▒ "+
+                                      "\n       ▒████ ░    ▒██░       ▒██░  ██▒   ▒██  ▀█▄     ▒ ▓██░ ▒░ "+
+                                      "\n       ░▓█▒  ░    ▒██░       ▒██   ██░   ░██▄▄▄▄██    ░ ▓██▓ ░ "+
+                                      "\n       ░▒█░       ░██████▒   ░ ████▓▒░    ▓█   ▓██▒     ▒██▒ ░ "+
+                                      "\n       ▒ ░       ░ ▒░▓  ░   ░ ▒░▒░▒░     ▒▒   ▓▒█░     ▒ ░░   "+
+                                      "\n      ░         ░ ░ ▒  ░     ░ ▒ ▒░      ▒   ▒▒ ░       ░    "+
+                                      "\n      ░ ░         ░ ░      ░ ░ ░ ▒       ░   ▒        ░      "+
+                                      "\n                  ░  ░       ░ ░           ░  ░            "+
+                                      "\n                                                              " + ANSI_RESET);
+        cclown = true;
+        enterToContinue();
+        clearConsole();
+        gameOver();
+        }
+    public static void angCorny(){
+        clearConsole();
+        System.out.println(ANSI_RED + " ▄████▄      ▒█████      ██▀███      ███▄    █    ▓██   ██▓     "+   
+                           "\n ▒██▀ ▀█     ▒██▒  ██▒   ▓██ ▒ ██▒    ██ ▀█   █     ▒██  ██▒  "+
+                           "\n ▒▓█    ▄    ▒██░  ██▒   ▓██ ░▄█ ▒   ▓██  ▀█ ██▒     ▒██ ██░ "+
+                           "\n ▒▓▓▄ ▄██▒   ▒██   ██░   ▒██▀▀█▄     ▓██▒  ▐▌██▒     ░ ▐██▓░ "+
+                           "\n ▒ ▓███▀ ░   ░ ████▓▒░   ░██▓ ▒██▒   ▒██░   ▓██░     ░ ██▒▓░ "+
+                           "\n ░ ░▒ ▒  ░   ░ ▒░▒░▒░    ░ ▒▓ ░▒▓░   ░ ▒░   ▒ ▒       ██▒▒▒   "+
+                           "\n     ░  ▒        ░ ▒ ▒░      ░▒ ░ ▒░   ░ ░░   ░ ▒░    ▓██ ░▒░  "+
+                           "\n ░           ░ ░ ░ ▒       ░░   ░       ░   ░ ░     ▒ ▒ ░░   "+
+                           "\n ░ ░             ░ ░        ░                 ░     ░ ░      "+
+                           "\n ░                                                  ░ ░     "+ ANSI_RESET);
+                           scene = true;
+                           ccorny = true;
+                           enterToContinue();
+                           clearConsole();
+                           gameOver();
+    }
+    public static void demonKill(){
+        System.out.println(ANSI_RED + "⣠⣿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣆⠀⠀⠀⠀⠈⢿⣧    "+
+                                                               "\n ⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⡆⠀⠀⠀⠀⠀⠙  "+
+                                                               "\n ⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀ "+
+                                                               "\n ⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⢻⡇⠀⠀⠀⠀⠀⠀⢰⠀⠀⠀⣿⠹⣦⠀⠀⠀⠀⠀⢰⡀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀"+
+                                                               "\n ⡇⠀⠀⠀⠀⠀⠀⠀⠀⢰⠀⠀⠀⠀⠀⢠⡾⠃⢸⣇⣴⠀⠀⠀⠀⠀⢸⠀⠀⢸⣿⣀⠙⣧⡀⠀⠀⠀⠀⡇⠀⠀⠀⢸⣧⠀⠀⠀⠀⠀"+       
+                                                               "\n ⡇⠀⠀⠀⠀⠀⠀⠀⢀⠇⠀⢀⡠⠤⢴⡿⠿⠿⠟⣿⠁⠀⠀⠀⠀⠀⢸⠀⠀⢸⡏⠛⠿⠿⢷⡶⠦⠤⣀⣿⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀"+
+                                                               "\n ⡇⠀⠀⠀⠀⠀⠀⠀⣼⠐⠊⠁⠀⢠⡟⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⢸⠀⠀⣿⠀⠀⠀⠀⠈⢷⡄⠀⠀⢹⠀⠀⠀⠀⣿⠀⠀⣀⣤⣶"+
+                                                               "\n ⣿⠀⠀⠀⠀⠀⠀⠀⡏⠀⠀⣀⣤⡟⠃⣀⣈⣀⠒⠠⢿⡀⠀⠀⠀⠀⢸⡄⢰⡇⠀⠔⢂⣈⣁⡘⢿⣦⢄⣼⠀⠀⠀⠀⣿⠀⠀⠈⢿⣧"+
+                                                               "\n ⣿⠀⠀⠀⠀⠀⠀⢰⡇⢠⣊⣴⣿⣿⣿⣿⡿⣿⣿⣶⣌⣷⡀⠀⠀⠀⠈⡇⡾⢀⣴⣾⣿⡿⣿⣿⣿⣿⣶⣾⣥⠄⠀⠀⢿⡆⠀⠀⠈⢻"+
+                                                               "\n ⣿⠀⠀⠀⠀⠀⠀⢸⡇⠀⣿⣿⠛⠉⠀⠀⣠⣤⠈⠻⣷⠈⢷⡀⠀⠀⠀⢿⠃⢸⣿⠋⢁⣤⡄⠀⠈⡿⢻⣿⡏⠀⢀⡄⢸⣇⠀⠀⠀⠀"+
+                                                               "\n ⡏⠀⣰⡆⠀⡇⠀⢸⡇⢀⡟⣿⠀⠀⠀⠀⢿⣿⠀⠀⠹⡆⠈⠳⡀⠀⣀⢸⡆⣾⠃⠀⠸⣿⡇⠀⠀⡇⢠⢿⠀⠀⢸⡄⠀⢿⣄⡀⠀⢀"+
+                                                               "\n ⣠⣾⣿⠃⠀⡇⠀⢸⡇⡼⠀⢻⢲⣄⣀⡀⢀⣀⢀⣀⡀⠁⠀⠀⠙⢆⣿⣆⣷⠃⢀⣀⢀⣀⠀⣀⣰⣿⡇⠀⠀⠀⣾⢳⣦⣈⣻⣿⣿⣿"+
+                                                               "\n ⠛⣹⡿⠀⠀⣇⠀⢸⣷⠃⠀⢸⡆⠘⠿⠿⠿⠟⠛⠁⠀⠀⠀⠀⠀⠀⠛⠊⢿⡄⠀⠙⠛⠻⠿⢿⣿⡏⠁⠀⠀⢰⡇⠘⣿⣿⠛⠛⠛⠛"+
+                                                               "\n ⣶⣿⠃⠀⢀⣿⠀⠈⢯⡀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠂⠀⠀⠀⠀⠀⣿⠁⠀⠀⢀⡿⢀⡀⠘⢿⣧⡀⠀⠀"+
+                                                               "\n ⢸⠏⢀⣴⣿⣿⠀⣠⠊⣧⠀⠀⢿⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡟⠀⣄⢀⣾⣁⣸⠙⣄⠈⠻⣿⣶⣤"+
+                                                               "\n ⢸⣶⡿⠟⢹⣿⡖⠁⢠⣿⣀⡤⠋⢩⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠃⠘⡇⠙⢿⣿⣿⡄⠈⠳⣶⣾⠿⠛"+
+                                                               "\n ⣿⢋⣴⡾⠟⠁⣠⠴⢋⡼⠋⠀⢀⣾⣄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡤⢤⠤⣀⠀⠀⠀⠀⠀⢠⡏⠀⣠⣿⡀⠀⠙⢿⣿⣦⣄⠈⠻⢷⣦"+
+                                                               "\n ⣿⠟⠉⠀⣠⣾⣿⠶⠋⠀⢀⣠⠞⢻⣿⣷⣄⣀⣠⠀⠐⠒⠛⠛⠛⠓⠒⠒⠚⠓⠀⠀⠀⣠⣾⣁⣴⣿⠛⢿⣤⡀⠀⠙⠻⣿⣷⣄⠀⠙"+
+                                                               "\n ⡇⠀⠀⢸⡟⠉⠀⠀⡠⢶⣿⠿⠤⠼⠿⠛⠉⣰⢧⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⠾⢻⣧⠉⠛⠿⠿⠾⠿⣿⣶⣄⠀⠀⠉⢻⡧⠀"+
+                                                               "\n ⡇⠀⠀⢸⠃⠀⠀⢸⣿⡼⠁⠀⠀⢀⣠⣴⣾⡿⠀⠉⣿⣶⣤⣀⠀⠀⠀⣀⣤⣶⠿⢿⠀⣾⠋⢿⣦⣄⡀⠀⠀⠈⢻⣿⡇⠀⠀⠈⡇⠀"+
+                                                               "\n ⡇⠀⠀⣸⠀⠀⠀⣾⡿⠁⠀⣠⣾⣿⡎⣿⡿⠃⠀⣴⣏⠉⠉⠉⠉⠉⠉⠉⠁⠀⠀⢸⣾⡁⠀⠘⠿⠿⣿⣷⣄⠀⠀⢿⣿⠀⠀⠀⣇⠀"+
+                                                               "\n ⠇⠀⠀⠇⠀⠀⠀⣹⠇⠀⠀⣿⣿⣿⣿⣾⣀⣠⢼⡇⠙⢦⣀⠀⠀⠀⠀⠀⠀⣀⡴⠋⢸⡟⣶⣶⠶⠿⠛⣹⡿⠀⠀⠘⣯⠀⠀⠀⠹⠀"+
+                                                               "\n ⠀⠀⠀⠀⠀⠀⠀⠋⠀⠀⠀⠸⣿⣭⣛⣿⣿⠏⢸⡇⠀⠀⠈⠉⠒⢲⡖⠒⠉⠁⠀⠀⢸⡇⠘⢿⣦⣤⣴⣿⠇⠀⠀⠀⠙⠂⠀⠀⠀⠀"+
+                                                               "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⡛⠋⣁⡴⠛⠀⠀⠀⠀⠀⠀⡞⢹⡀⠀⠀⠀⠀⠀⢝⣦⣄⣉⣩⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                               "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⣸⠁⠀⣇⠀⠀⠀⠀⠀⠀⠉⣻⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+ ANSI_RESET );
+                                                System.out.println("You saw your reflection in the mirror...");
+                                                System.out.println("You began strangling yourself, but still you are trying your hardest to fight whatever this is.");
+                                                System.out.println("You further lose control. You opened the sink and is now drowning yourself. ");
+                                                System.out.println("You are losing your breath...");
+                                                enterToContinue();
+                                                clearConsole();
+                                                System.out.println("You willed yourself to survive and live.");
+                                                System.out.println("You managed to stand up and as you looked at the mirror...");
+                                                enterToContinue();
+                                                clearConsole();
+                                                System.out.println(ANSI_RED + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⣶⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣴⠆⠀⠀⠀⠀⠀⠀⠀               "+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢯⣿⣲⣄⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣟⣽⢟⣕⢄⠀⠀⠀⠀⠀⠀⣧⠀⡀⠀⠀⠀⠀⢠⢮⡾⣽⡻⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⣮⣟⡼⡌⡆⠀⠀⠀⠀⡰⡵⠰⡃⠀⠀⠀⢠⢃⡻⣜⢯⣻⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡿⣮⡵⣫⡵⢹⠀⠀⠀⠻⡄⡧⣈⠚⠀⠀⠀⢸⢺⡗⣭⣛⢿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⡿⡵⢞⣫⡆⡹⠀⠀⠀⢑⠥⡨⡐⠫⣢⠀⠀⢸⢺⣽⢚⡭⣯⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣴⣿⣿⣶⣻⡭⣷⢣⠇⠄⠤⢀⠼⣄⣸⡌⡆⢠⡧⠀⠈⡷⣮⢯⣛⣶⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠈⠢⡀⠠⡒⠀⠂⠐⠀⠂⠀⣀⣴⢾⣿⣿⣿⣷⣚⣷⡿⣳⠛⠒⠒⠒⢇⠏⡚⠓⠈⢀⢬⠓⠒⠒⠚⢞⡯⣟⣶⣛⣿⣿⣿⣿⡦⣖⠀⠀⠀⠀⠂⠐⠀⡄⠀⠐⠁⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠘⡄⠈⠢⡀⢀⣠⡴⣟⢿⣹⢿⣺⣿⣟⣶⣛⡭⠛⠁⠀⠀⠀⠀⠈⣑⣜⡆⢔⣕⣁⠀⠀⠀⠀⠀⠙⢯⡞⣛⣾⣿⣿⣸⣿⣹⣿⠶⣤⡀⠀⡠⠊⢀⠎⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠈⣦⡴⣾⢯⡽⢾⡹⣾⣝⣾⣟⠫⠞⠋⡁⠤⠀⠒⠀⠉⠁⠀⠀⠀⢈⣷⣁⠀⠀⠀⠀⠉⠁⠐⠂⠤⢈⡙⠛⠯⣻⣾⣷⣏⢾⣻⢫⡽⣻⠶⣤⡂⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⣾⣯⣷⣯⣻⣿⣧⣿⣟⡕⢋⢠⠐⠊⠁⠀⡀⣤⢀⣲⣦⣭⣥⣤⣴⣶⣤⣴⣦⣤⣬⣭⣥⣖⣂⣤⣄⡀⠀⠁⠂⡄⡉⢪⣟⣿⣵⣯⣾⣭⣟⣏⣿⡄⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⢸⢿⣿⣿⣿⣯⣿⣿⢳⣾⠇⠋⢀⢠⠰⠘⢃⣡⣾⣿⣿⢿⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻⣿⣿⣷⣮⣁⠃⠶⡄⡀⠁⠳⢹⣏⣿⣟⣿⣿⣾⣿⣿⣇⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⢸⣟⢟⢿⣝⣟⣻⢻⢿⠁⢀⠜⠋⠀⠀⣠⣿⣿⠏⣿⣧⡇⣸⣿⣟⣯⡿⣽⣻⡿⣽⣿⣏⢈⣼⣿⡟⣧⣝⢧⡀⠀⠁⠃⡄⠀⡏⡿⣻⣻⣻⡽⣫⢻⣿⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⢸⣿⢼⣱⢬⣙⡻⠭⣯⣦⣀⠑⠄⣀⣼⣿⣿⣮⠃⢿⣻⡿⣿⠟⣾⢷⣻⢯⣷⣟⣿⡻⣿⣿⣟⣿⠃⡾⣿⣷⡵⣄⢀⠔⢁⣠⣷⠿⢝⡚⡭⢮⣹⢿⡇⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⢿⣾⣹⢾⡱⣺⠭⣽⣱⢞⡿⣩⢿⣟⣳⣿⢿⣿⣿⣿⡽⡍⢸⣟⣯⣟⣿⢾⡽⣾⡇⠙⣺⣽⣿⣷⣿⣿⣷⢻⣷⣭⢻⣗⢦⣻⡱⣽⢚⣟⣦⣿⣿⠃⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⡸⢿⣿⣟⣧⣷⣹⢥⠷⣞⣱⢏⡾⣱⣎⠧⣽⡱⠯⣟⢿⡡⠈⣿⣳⢿⡾⣿⡽⣷⠃⢄⡧⣟⡝⡧⢿⣲⣙⣧⢳⡞⣧⠺⡭⣖⢿⣸⣏⣷⣿⣿⠏⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⢀⠜⠀⠠⠛⠿⣿⣿⣿⣿⣿⣵⣯⣾⢾⡳⣌⣿⢣⣝⣟⢣⠗⣝⢷⣿⣟⣯⣟⡷⣿⣿⡶⣫⣚⢖⡻⣵⣋⠷⣞⠼⣯⣳⣽⣯⣿⣿⣿⣿⣿⠿⠛⢅⠀⠑⡀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⢀⠎⠀⡰⠁⠀⠀⠀⠈⠉⠛⣿⣿⣿⣿⣷⣿⣋⣮⢷⡹⣌⣧⢿⢫⢵⣻⣟⣾⣽⣻⢷⡿⡽⣜⢻⢮⣕⢫⢷⣽⣎⣿⣿⣿⣿⣿⡿⡟⠉⠉⠀⠀⠀⠀⢢⠀⠘⠄⠀⠀⠀"+
+                                                                  "\n  ⠀⢀⠊⠀⡐⠀⠀⢀⣀⠀⠀⠀⢸⣿⣾⣿⣿⣿⣿⣿⣾⡷⢻⡹⣜⣣⣿⢫⢧⣿⣟⣾⣽⣿⢻⣞⣧⣏⡳⢯⣛⢾⣶⣿⣿⣿⣿⣿⣿⡇⢻⠀⠀⠀⢀⣀⠀⠀⠡⠀⠈⡄⠀⠀"+
+                                                                  "\n  ⠀⠌⠀⡰⠀⠀⠀⢸⣿⣷⣤⣀⠘⣿⣿⣿⣿⣿⣿⣽⣷⣿⣿⣿⣭⣷⣼⣟⣾⣻⣿⣯⢿⣏⣿⣿⣶⣾⣽⣻⣟⣿⣻⣿⣽⣿⣿⣿⣿⣇⡏⢀⣤⣴⡿⡝⠀⠀⠀⢣⠀⠘⡀⠀"+
+                                                                  "\n  ⠐⠀⢠⠁⠀⠀⠀⠀⠙⣷⣿⣻⣷⣿⣿⣿⣻⣟⣿⣯⣿⣿⣽⣯⣟⣭⣷⣿⣾⡿⣯⣿⢿⣿⣷⣿⣿⣼⣹⣿⣻⣿⣿⣽⣿⢿⣻⣽⣿⣿⢳⣿⣟⣟⠟⠀⠀⠀⠀⠀⠆⠀⢡⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣷⣟⣿⣽⣿⣯⣷⣿⡾⣿⣶⣯⣟⠿⣟⣿⣻⣽⢿⣽⣻⣿⣻⣾⣳⢯⣟⣿⣻⣿⣿⣟⣿⣭⣛⣿⣳⣯⣿⣏⣾⣟⣾⣿⠀⠀⠀⠀⠀⠀⠘⡀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⢿⣿⣿⣟⣿⢿⣯⣟⣷⣻⣾⣽⣻⣾⡿⣷⣿⣻⣾⢿⣷⣿⢿⣻⣿⣻⣿⢿⣻⣾⣽⣾⣽⣻⣽⡿⣿⢷⣽⣿⣿⣿⢹⠀⠀⠀⠀⠀⠀⠀⠃⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣟⣿⣿⣿⣯⣿⣟⣿⣿⣿⣷⣿⣻⣾⣽⢿⣽⣻⢾⡿⣯⢿⣻⣽⢯⡿⣽⡻⣫⣵⣾⣾⣿⣟⣿⣿⢿⡟⣾⣿⣟⣿⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣻⣽⣿⣯⣟⣿⣿⣿⡿⠟⢻⠟⡿⣾⣭⣽⣿⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠟⢛⠿⣿⣿⣿⣿⣿⢸⣿⡿⣿⡞⠀⠀⠀⠀⠀⠀⠀⠀⠘⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⢿⣿⣟⣿⣿⣿⣿⠀⠀⢼⠠⠌⠘⣿⣿⣿⣿⡿⣿⣟⢿⣿⣿⣿⡋⠀⠄⡤⠄⠈⣿⣿⣿⣿⣼⢸⣿⣿⢻⠀⠀⠀⠀⠀⠀⠀⠀⠀⢘⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣻⣿⣿⣿⣿⣶⣶⣶⣶⣿⣿⣿⣿⣿⢿⣻⣯⣸⣷⣿⣿⣿⣷⣶⣷⣶⣾⣿⣿⣿⣿⢿⣾⣿⣿⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⢿⣿⣿⢷⣿⣿⣿⣯⡿⢷⣿⣿⣿⣿⣿⣻⣷⣿⣿⣿⣿⣞⣿⣻⣽⢿⣿⣿⣷⣿⣟⣫⣿⣿⣿⣿⣷⡌⣻⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣯⣿⣳⣿⣽⣻⣿⣻⡽⣟⣾⣳⣿⣿⣿⣿⣿⣿⣿⣷⢿⣿⣻⢾⣻⣟⡿⣿⡯⢿⣾⣿⣵⣿⡣⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣿⣿⣿⣿⣯⣷⡿⣿⣿⣿⣿⣿⣿⣿⣿⡾⣟⣯⣯⣴⣿⣿⣿⣿⣿⣿⣿⠎⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠈⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠊⣿⣿⣿⣿⣿⣿⣿⡾⣟⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿⣿⣿⣿⣿⡉⠢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠃⠀⠄⠀"+
+                                                                  "\n  ⠀⠀⠀⠘⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠊⠠⠈⠈⣿⣷⣿⢻⣷⣿⣿⢿⣻⣿⡿⣿⣿⢿⣿⣻⣷⣿⡻⣿⡿⡏⣿⣷⣿⠃⠑⢄⠐⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠎⠀⡰⠀⠀"+
+                                                                  "\n  ⠀⠀⢢⠀⠘⡀⠀⠀⠀⠀⠀⠀⡠⠐⢀⠔⠁⠀⠀⢸⣿⣿⣼⠂⢻⠃⣿⢻⣷⣿⣿⣾⣿⡟⣿⡟⢿⠋⣿⠁⣸⣿⣿⣿⠀⠀⠀⠑⠄⠑⢄⠀⠀⠀⠀⠀⠀⢀⠎⠀⡰⠁⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠡⡀⠈⢄⠀⢀⡠⠔⠊⠀⠀⠆⠀⠀⠀⠀⢸⣿⣿⣿⣷⣿⠀⣯⠀⡿⢹⠛⣿⠟⣷⣿⠃⣾⡄⠙⣶⣿⣿⣽⣿⠀⠀⠀⠀⠈⡄⠀⠈⠂⠄⣀⠀⢠⠊⠀⡐⠁⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠑⡀⠀⠪⡉⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠘⣿⣿⢿⣿⢧⡚⣿⣤⡇⡸⠀⢿⠀⢹⣿⣦⣿⡇⣿⣿⣿⣿⣾⠇⠀⠀⠀⡀⠈⠉⠉⠉⠉⠉⠉⡙⠁⢀⠜⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠘⢆⠀⠘⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣧⢿⣿⣿⣿⣿⣷⣦⣿⣤⣾⣿⣿⣿⣿⡿⡜⣿⣷⡟⠀⠀⣴⣿⣿⣿⣶⡄⠀⠀⣠⠞⠀⣠⠆⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠈⠳⡄⠈⠃⠀⠀⣤⣤⡄⢠⠀⢠⡄⢨⣿⡿⣿⣯⠹⠻⣿⣿⣿⣿⣿⣿⢿⡿⣿⡿⣿⣽⣾⣿⢻⢧⣤⣼⣿⣵⣦⢨⣿⣿⣤⠞⠁⠀⠞⠁⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠈⠢⡀⠀⠐⢌⡉⠐⠢⡀⠀⠀⢰⠹⢿⣻⢿⣸⣄⢹⡻⢿⣿⣿⣿⡿⣿⣜⢿⣞⣿⣿⣳⠏⠉⠀⠀⠙⣿⠟⠀⣹⡇⡇⢀⠔⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⢄⡀⠈⠂⠄⡀⠑⠄⠘⠴⠉⣿⣟⣿⣧⣼⣧⣸⡆⣼⢀⣿⣿⣟⣧⡻⣿⣿⣷⣦⡰⠀⡠⠊⡠⡶⠈⣾⣿⠗⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠒⠄⡀⠀⠁⠂⠆⠀⢌⠈⣿⣯⢿⡽⣯⣿⢿⡿⣾⣟⣿⣿⢿⣻⣮⣿⣾⡿⣦⣘⠂⠁⠀⣠⣾⡿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡀⢀⡀⠀⠀⠀⠀⠁⠂⡄⢀⡀⠀⠁⠐⠛⠻⢽⣳⣟⣯⣟⣷⣻⣾⣽⠿⢿⣿⣞⣯⢿⡿⣿⣻⣿⢿⣟⢿⡿⠁⣀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⡠⠊⠀⠀⠀⠈⡆⠀⠀⠀⢀⠎⢠⠂⠈⠑⡀⠠⡀⠤⠤⠀⠀⠀⠀⠀⠀⠀⠠⠤⠄⢘⠙⠻⠯⢿⣟⣷⣯⡿⠾⠋⢀⠊⠀⠀⠀⠈⢢⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⢠⠁⠀⢠⠊⠀⠈⠃⠀⠀⢀⠂⡠⠁⠀⠀⠀⠈⢄⠐⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠁⡰⠁⠀⠀⠀⢢⠈⢄⠀⠀⠈⠊⠀⠁⠂⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠈⡄⠀⠘⢄⠀⠀⠀⢀⠠⠁⡐⠁⠀⠀⠀⠀⠀⠈⢂⠈⢄⠀⠀⠀⠀⠀⠀⠀⠀⡐⠁⠔⠀⠀⠀⠀⠀⠀⠡⡀⠢⡀⠀⠀⠀⢀⠄⠀⠀⠇⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠐⢄⠀⠀⠉⠐⠂⠁⠀⠌⠀⠀⠀⠀⠀⠀⠀⠀⠀⠣⠀⠢⠀⠀⠀⠀⠀⢀⠌⢀⠌⠀⠀⠀⠀⠀⠀⠀⠀⠑⢄⠀⠁⠒⠈⠀⠀⢀⠌⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠂⠠⠄⠐⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠱⡀⠡⡀⠀⠀⢠⠊⢀⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠒⠀⠄⠀⠂⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠄⠐⠄⡠⠁⡠⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢆⠈⠀⡐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"+
+                                                                  "\n  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢢⠌⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" + ANSI_RESET );
+                                                    enterToContinue();
+                                                    clearConsole();
+                                                    System.out.println("The mirror shattered. Your hands moved by itself.");
+                                                    System.out.println("Your hand picked up a big mirror shard.");
+                                                    System.out.println("You try to fight back, but it's futile.");
+                                                    System.out.println("Your hand impaled your chest with the glass shard.");
+                                                    enterToContinue();
+                                                    clearConsole();
+                                                    debil = true;
+                                                    gameOver();
+    }
+    public static void getJigsawed(){
+        clearConsole();
+        System.out.println(ANSI_RED +"⠘⣰⢟⡶⣡⣿⣿⣿⣿⣿⣿⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⡻ "+
+                            "\n⢰⢫⡟⢰⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣿⣿⣿⣿⣿⣿⣽⣿⣿⢿⣷"+
+                            "\n⢠⡿⡄⣾⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿"+
+                            "\n⠘⣽⡼⢸⢟⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣇⣾⡿⣼⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠠⠤⠤⠤⢄⣀⣠⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⡠⠤⠤⣤⠤⢤⣀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⢹⢿⣳⣿⣿⣿⣿⡏⣀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠙⠲⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⠖⠚⠉⠉⠉⠀⠀⢢⣠⠃⠀⠀⠀⠉⠢⣄⠘⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣾⣴⣽⣿⣿⣿⡿⠋⠁⠀⠀⠀⠠⠤⠖⠀⠀⠈⠑⠦⡀⠀⠀⠀⠀⠉⠲⣄⠀⠀⠀⠀⠀⢀⡴⠋⠁⠀⠀⠀⢀⡠⠖⠉⠈⠇⠒⠦⠄⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⡿⣿⢿⣿⣿⡏⠀⠀⠀⠀⣀⣠⣤⡴⣶⣶⣦⣤⣀⠀⠈⠑⠄⠐⡄⠀⠀⠈⠳⣶⣄⣴⠾⠋⠀⠀⢀⡔⠀⠒⠁⠀⣀⣤⣾⣵⣶⣶⣤⣄⣀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣇⠀⢨⠴⣾⣿⣿⣿⣿⡿⠋⠉⠙⠛⠻⣶⣄⡈⠂⠈⢦⠀⠀⠀⢻⣿⡷⠀⠀⠀⣠⠎⠀⠀⣠⣴⡿⠟⠉⠉⠙⢿⣿⣿⣿⣿⣿⡶⣄⠀⢠⣿⣿⣯⣿⣿⣿"+
+                            "\n⢸⣿⣿⢹⣿⣿⡟⢦⠈⢧⣿⣿⣿⣿⣿⠁⢠⣾⣿⣷⠀⠘⣿⣿⣦⣄⡀⣑⠀⠀⠀⣿⡇⠀⠀⠜⠁⣀⣴⣾⣿⡏⠀⣾⣿⣷⡆⠀⣻⣿⣿⣿⣸⡿⠇⢰⢻⣿⣿⣿⣻⣿⣿"+
+                            "\n⢸⣿⣿⣾⣿⣿⡇⠈⠀⠀⠋⠛⢿⣿⣿⣆⠈⠻⠿⠟⠀⢰⣿⣿⣿⣏⣹⣾⣶⣶⣯⣭⣿⣷⣶⣶⡞⠁⣿⣿⣿⣇⠀⠙⠿⠟⠃⢠⣿⣿⣿⠋⠉⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⠇⣿⣿⣿⡇⠀⠀⠀⠀⣀⡀⠙⠿⣿⣷⣤⣀⣤⣶⣿⣿⣿⡿⢣⣷⢸⢻⣿⠶⠶⠿⢿⣟⠋⣾⣇⠻⣿⣿⣿⣷⣤⣀⣠⣶⣿⡿⠟⠁⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣾⣿"+
+                            "\n⢸⣿⣸⣿⣿⣿⣁⣻⢿⣛⣲⢮⣝⡳⠈⠓⠦⣍⠙⠛⠛⠛⠛⠉⠀⡾⠋⢠⠾⡇⠀⠀⠀⢨⡟⢿⠙⢿⡀⠈⠿⠛⠛⠛⠛⠋⠵⠖⠋⠀⣚⡥⢶⣞⣿⢿⣶⣽⣿⣿⢎⣷⣿"+
+                            "\n⢸⣧⣿⣿⣿⠃⡠⠤⠤⣀⡉⠛⠷⡛⢦⡀⠀⠀⠠⣄⠀⠀⠀⠀⠘⠁⠀⠀⠀⣿⠀⠀⠀⢸⠐⠆⠀⠀⠋⠀⠀⠀⠀⢀⡴⠁⠀⠀⣠⠞⡵⠛⠉⣀⣤⢤⣄⣈⢿⣿⣧⣼⣿"+
+                            "\n⢸⣷⣿⣿⡏⠐⠓⠛⠲⢤⡝⢦⠀⠻⣄⢹⡄⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⠀⠀⢠⡞⣡⠞⠁⣠⠚⣩⠴⠚⠛⠛⢮⣿⣿⣾⣿"+
+                            "\n⢸⣿⣿⣿⢀⣔⡒⢦⣀⠀⠘⣦⣷⡄⠈⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣄⠀⠀⠀⠀⢀⡴⠀⢠⣾⣾⠋⠀⣼⣡⠎⠀⢀⣤⣶⣶⣄⢹⣿⣿⣿"+
+                            "\n⢸⣿⣿⡇⡟⠋⠉⠓⣎⣷⡀⠘⣿⣿⡀⠘⣿⣿⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠈⢳⣠⠖⠋⠉⣱⣤⣿⣿⠏⠀⣼⣿⠟⠀⣴⣯⠞⠉⠉⠻⣼⣿⣿⣿"+
+                            "\n⢸⣿⣿⡇⡇⣿⣿⣄⠘⣿⣷⠀⢹⣿⣧⠀⣻⣿⠆⠀⠀⠀⠀⠀⠀⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠁⠀⣿⢿⠛⢺⣿⡟⠀⣼⣿⠏⣠⣾⣿⡆⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣇⢿⡘⢿⠏⢸⡿⣇⠀⣿⢿⡀⣿⣿⠆⠀⠀⢀⠀⢀⣀⠘⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⢀⠀⣀⠀⠀⠀⣿⢸⠀⢸⢹⡇⢀⡿⣿⠸⠿⠟⣸⢧⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣌⠳⣤⣴⣋⡴⠃⣠⣏⡾⠁⣟⣿⣠⡴⣾⣽⣞⣯⣿⠛⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠊⢿⡎⣷⢯⣿⠲⣤⣻⣾⡄⢹⣜⣇⠈⢷⣽⣶⣤⡾⣫⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣷⣮⣭⣥⣴⣶⡿⢋⣡⣾⡿⣋⣡⣤⠖⠊⠁⠀⢹⡀⠀⠀⠀⠀⠀⠀⠀⠀⠃⠀⠀⠀⣾⠁⠈⠙⢲⣦⣄⣈⢻⣿⣦⡙⢻⣿⣦⣤⣭⣵⣾⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⠛⠛⠋⠙⠏⣿⢿⣟⡛⠓⠶⠤⠷⣄⡀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⣥⡶⢶⣿⣿⣿⣿⡏⠟⠙⠛⠛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⡿⡼⡿⣿⣿⣿⣿⣿⣧⢀⠀⠀⠀⠘⢧⡉⢻⡿⢶⣶⣶⣦⣿⣷⣄⡀⠀⢀⣀⣴⣿⣥⣴⣶⡶⢿⣟⣿⣿⠟⠀⠀⠀⣀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣻⠛⣿⢿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠙⢻⣷⣤⣤⣭⣀⠀⠈⠉⠙⠛⠛⠉⠁⠀⠀⠀⣀⣀⣼⣿⠛⠁⠀⠀⠀⠘⢡⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⢳⣿⣹⣿⢸⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⢸⠈⠩⠝⠛⢛⡛⠛⠾⣿⣾⣾⡶⠛⢛⣛⠛⠛⠭⠉⣿⡅⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⢿⣯⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣏⡼⣷⣿⣿⢸⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⡷⠇⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣻⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣾⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢩⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⣧⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠱⠀⠘⠀⠀⠀⠀⠀⠀⠀⠀⣗⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣽⣯⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⢷⣽⣧⣤⣤⢾⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣦⣤⣴⡿⣿⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⢙⢿⡿⣦⣺⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⣄⠀⠀⢸⣴⣿⣿⢙⡁⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡈⠃⢰⡉⠻⣄⠀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⠀⣀⡾⠉⡠⠀⠉⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"+
+                            "\n⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣟⢱⢖⡛⠛⢛⣻⣿⣶⢤⣴⣶⣲⣶⣧⣤⣭⣷⣶⣺⣿⣧⣴⣿⣿⣟⢛⣻⣷⣦⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿"+ ANSI_RESET);
+            System.out.println("His face is the last thing you saw before you lost concsiousness.");
+            enterToContinue();
+            clearConsole();
+            jigg = true;
+            gameOver();
+    }    
+}
+
+public class Main {
+    public static void main(String [] args){
+        GameLogic.startGame();    
+    }
+}
+    
+
+
+        
+
+
+   
+   
+
+
+
+
+
+   
+   
+
+
